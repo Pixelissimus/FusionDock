@@ -7,7 +7,21 @@ Last pruned 2026-07-27 after Stages 0–4 passed on real hardware.
 
 ---
 
-## 1. Custom folder icons — in progress
+## 1. Custom folder icons — DONE 2026-07-27
+
+All six drawn, keyed to transparency, installed and committed: `create-solid`, `modify-solid`,
+`create-sketch`, `modify-sketch`, `constrain-sketch`, `view`.
+
+Kept below because the style spec and the extraction recipe are what any future icon work
+should follow — the generator will not produce transparency, and its own download saves the
+baked background.
+
+**Remaining judgement, only answerable by use:** whether they read clearly at 96x96 on the
+actual keys. They were checked at full size, not on the device.
+
+<details>
+<summary>Original brief and method</summary>
+
 
 **Problem.** Folder keys open a sub-page rather than running a command, so there is no Fusion
 icon to read. Jamie confirms these icons do not exist in Fusion's own icon directory either, so
@@ -116,6 +130,10 @@ each remaining icon needs.
 **Constraint:** whatever is produced ships in `static/`. Autodesk's own artwork is never
 bundled — Fusion icons are read from the local install at runtime, and that must stay true.
 Matching the visual *language* is fine; copying their files is not.
+
+---
+
+</details>
 
 ---
 
