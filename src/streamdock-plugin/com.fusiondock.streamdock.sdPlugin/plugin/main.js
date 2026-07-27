@@ -156,9 +156,18 @@
     // 'peek' lets a folder key show the icon of its most common child, so the Rectangle
     // key looks like a rectangle rather than a generic folder.
     var iconSource = entry.cmd || entry.peek || null;
+    // Fusion first, then our own art. Menu keys (Create, Modify) have no Fusion icon because
+    // menu containers are not commands, so they carry an 'icon' naming a PNG in static/.
+    // Fusion's own icons are never bundled -- they are read from the local install at runtime.
+    var iconUrl = '';
+    if (iconSource) {
+      iconUrl = bridgeUrl('/icon?id=' + encodeURIComponent(iconSource));
+    } else if (entry.icon) {
+      iconUrl = '../static/' + entry.icon + '.png';
+    }
     return {
       label: entry.label || '',
-      iconUrl: iconSource ? bridgeUrl('/icon?id=' + encodeURIComponent(iconSource)) : '',
+      iconUrl: iconUrl,
       accent: entry.accent,
       disabled: Boolean(entry.disabled),
       badge: Boolean(entry.page),

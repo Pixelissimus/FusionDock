@@ -219,13 +219,13 @@
         {
           "page": "solid.create",
           "label": "Create",
-          "icon": "folder",
+          "icon": "create-solid",
           "folder": true
         },
         {
           "page": "solid.modify",
           "label": "Modify",
-          "icon": "folder",
+          "icon": "modify-solid",
           "folder": true
         },
         {
@@ -238,7 +238,8 @@
         {
           "page": "view",
           "label": "View",
-          "folder": true
+          "folder": true,
+          "icon": "view"
         }
       ]
     },
@@ -533,22 +534,26 @@
         {
           "page": "sketch.create",
           "label": "Create",
-          "folder": true
+          "folder": true,
+          "icon": "create-sketch"
         },
         {
           "page": "sketch.modify",
           "label": "Modify",
-          "folder": true
+          "folder": true,
+          "icon": "modify-sketch"
         },
         {
           "page": "sketch.constrain",
           "label": "Constrain",
-          "folder": true
+          "folder": true,
+          "icon": "constrain-sketch"
         },
         {
           "page": "view",
           "label": "View",
-          "folder": true
+          "folder": true,
+          "icon": "view"
         }
       ]
     },
@@ -916,7 +921,8 @@
         {
           "page": "view",
           "label": "View",
-          "folder": true
+          "folder": true,
+          "icon": "view"
         }
       ]
     },
@@ -968,7 +974,8 @@
         {
           "page": "view",
           "label": "View",
-          "folder": true
+          "folder": true,
+          "icon": "view"
         }
       ]
     },
@@ -1026,7 +1033,8 @@
         {
           "page": "view",
           "label": "View",
-          "folder": true
+          "folder": true,
+          "icon": "view"
         }
       ]
     },

@@ -281,6 +281,17 @@ test('the shipped layout is valid and self-consistent', () => {
   assert.ok(layout.aux.dial && layout.aux.dial.rotate && layout.aux.dial.press,
     'the dial needs both a rotate and a press binding');
 
+  // Every key must have SOMETHING to draw: a Fusion icon via cmd/peek, or our own art via
+  // 'icon'. A key with none of them renders as a bare label, which is what the menu keys
+  // looked like before they had art.
+  for (const [pageId, page] of Object.entries(layout.pages)) {
+    for (const key of page.keys || []) {
+      if (key.disabled) { continue; }
+      assert.ok(key.cmd || key.peek || key.icon || key.view || key.text,
+        `page "${pageId}" key "${key.label}" has no image source at all`);
+    }
+  }
+
   // There must be a physical way out of a sub-page, or it is a dead end. Home is enough --
   // it returns to the context root from any depth.
   const auxActions = JSON.stringify([layout.aux.buttons, layout.aux.dial]);
