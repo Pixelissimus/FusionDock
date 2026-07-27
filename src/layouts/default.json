@@ -119,7 +119,6 @@
       "keys": [
         {
           "label": "Waiting for Fusion",
-          "icon": "wait",
           "disabled": true
         }
       ]
@@ -130,26 +129,22 @@
         {
           "cmd": "SketchCreate",
           "label": "Sketch",
-          "match": "Create Sketch",
-          "icon": "sketch"
+          "match": "Create Sketch"
         },
         {
           "cmd": "FusionCreateNewComponentCommand",
           "label": "Component",
-          "match": "New Component",
-          "icon": "component"
+          "match": "New Component"
         },
         {
           "cmd": "NewDocumentCommand",
           "label": "New",
-          "match": "New Design",
-          "icon": "new"
+          "match": "New Design"
         },
         {
           "cmd": "PLM360SaveCommand",
           "label": "Save",
-          "match": "Save",
-          "icon": "save"
+          "match": "Save"
         },
         {
           "page": "view",
@@ -165,56 +160,47 @@
         {
           "cmd": "SketchCreate",
           "label": "Sketch",
-          "match": "Create Sketch",
-          "icon": "sketch"
+          "match": "Create Sketch"
         },
         {
           "cmd": "FusionCreateNewComponentCommand",
           "label": "Component",
-          "match": "New Component",
-          "icon": "component"
+          "match": "New Component"
         },
         {
           "cmd": "Extrude",
           "label": "Extrude",
-          "match": "Extrude",
-          "icon": "extrude"
+          "match": "Extrude"
         },
         {
           "cmd": "Revolve",
           "label": "Revolve",
-          "match": "Revolve",
-          "icon": "revolve"
+          "match": "Revolve"
         },
         {
           "cmd": "FusionPressPullCommand",
           "label": "Press Pull",
-          "match": "Press Pull",
-          "icon": "presspull"
+          "match": "Press Pull"
         },
         {
           "cmd": "FusionFilletEdgesCommand",
           "label": "Fillet",
-          "match": "Fillet",
-          "icon": "fillet"
+          "match": "Fillet"
         },
         {
           "cmd": "FusionChamferCommand",
           "label": "Chamfer",
-          "match": "Chamfer",
-          "icon": "chamfer"
+          "match": "Chamfer"
         },
         {
           "cmd": "FusionShellBodyCommand",
           "label": "Shell",
-          "match": "Shell",
-          "icon": "shell"
+          "match": "Shell"
         },
         {
           "cmd": "FusionHoleCommand",
           "label": "Hole",
-          "match": "Hole",
-          "icon": "hole"
+          "match": "Hole"
         },
         {
           "page": "solid.create",
@@ -231,7 +217,6 @@
         {
           "page": "solid.construct",
           "label": "Construct",
-          "icon": "folder",
           "folder": true,
           "peek": "ConstructionPlaneOffsetFromPlaneCommand"
         },
@@ -249,74 +234,62 @@
         {
           "cmd": "Sweep",
           "label": "Sweep",
-          "match": "Sweep",
-          "icon": "sweep"
+          "match": "Sweep"
         },
         {
           "cmd": "SolidLoft",
           "label": "Loft",
-          "match": "Loft",
-          "icon": "loft"
+          "match": "Loft"
         },
         {
           "cmd": "FusionRibCommand",
           "label": "Rib",
-          "match": "Rib",
-          "icon": "rib"
+          "match": "Rib"
         },
         {
           "cmd": "FusionWebCommand",
           "label": "Web",
-          "match": "Web",
-          "icon": "web"
+          "match": "Web"
         },
         {
           "cmd": "EmbossCmd",
           "label": "Emboss",
-          "match": "Emboss",
-          "icon": "emboss"
+          "match": "Emboss"
         },
         {
           "cmd": "FusionThreadCommand",
           "label": "Thread",
-          "match": "Thread",
-          "icon": "thread"
+          "match": "Thread"
         },
         {
           "cmd": "PrimitiveBox",
           "label": "Box",
-          "match": "Box",
-          "icon": "box"
+          "match": "Box"
         },
         {
           "cmd": "PrimitiveCylinder",
           "label": "Cylinder",
-          "match": "Cylinder",
-          "icon": "cylinder"
+          "match": "Cylinder"
         },
         {
           "cmd": "PrimitiveSphere",
           "label": "Sphere",
-          "match": "Sphere",
-          "icon": "sphere"
+          "match": "Sphere"
         },
         {
           "cmd": "PrimitiveTorus",
           "label": "Torus",
-          "match": "Torus",
-          "icon": "torus"
+          "match": "Torus"
         },
         {
           "cmd": "Coil",
           "label": "Coil",
-          "match": "Coil",
-          "icon": "coil"
+          "match": "Coil"
         },
         {
           "cmd": "PrimitivePipe",
           "label": "Pipe",
-          "match": "Pipe",
-          "icon": "pipe"
+          "match": "Pipe"
         }
       ]
     },
@@ -326,74 +299,62 @@
         {
           "cmd": "FusionDraftCommand",
           "label": "Draft",
-          "match": "Draft",
-          "icon": "draft"
+          "match": "Draft"
         },
         {
           "cmd": "ModifyScale",
           "label": "Scale",
-          "match": "Scale",
-          "icon": "scale"
+          "match": "Scale"
         },
         {
           "cmd": "FusionCombineCommand",
           "label": "Combine",
-          "match": "Combine",
-          "icon": "combine"
+          "match": "Combine"
         },
         {
           "cmd": "FusionOffsetFacesCommand",
           "label": "Offset Face",
-          "match": "Offset Face",
-          "icon": "offsetface"
+          "match": "Offset Face"
         },
         {
           "cmd": "FusionReplaceFaceCommand",
           "label": "Replace Face",
-          "match": "Replace Face",
-          "icon": "replaceface"
+          "match": "Replace Face"
         },
         {
           "cmd": "FusionSplitFaceCommand",
           "label": "Split Face",
-          "match": "Split Face",
-          "icon": "splitface"
+          "match": "Split Face"
         },
         {
           "cmd": "FusionSplitBodyCommand",
           "label": "Split Body",
-          "match": "Split Body",
-          "icon": "splitbody"
+          "match": "Split Body"
         },
         {
           "cmd": "FusionMoveCommand",
           "label": "Move",
-          "match": "Move/Copy",
-          "icon": "move"
+          "match": "Move/Copy"
         },
         {
           "cmd": "AlignCmd",
           "label": "Align",
-          "match": "Align",
-          "icon": "align"
+          "match": "Align"
         },
         {
           "cmd": "AppearanceCommand",
           "label": "Appearance",
-          "match": "Appearance",
-          "icon": "appearance"
+          "match": "Appearance"
         },
         {
           "cmd": "PhysicalMaterialCommand",
           "label": "Material",
-          "match": "Physical Material",
-          "icon": "material"
+          "match": "Physical Material"
         },
         {
           "cmd": "FusionComputeAllCommand",
           "label": "Compute All",
-          "match": "Compute All",
-          "icon": "compute"
+          "match": "Compute All"
         }
       ]
     },
@@ -403,62 +364,52 @@
         {
           "cmd": "ConstructionPlaneOffsetFromPlaneCommand",
           "label": "Offset Plane",
-          "match": "Offset Plane",
-          "icon": "planeoffset"
+          "match": "Offset Plane"
         },
         {
           "cmd": "ConstructionPlaneAtAngleCommand",
           "label": "Plane Angle",
-          "match": "Plane at Angle",
-          "icon": "planeangle"
+          "match": "Plane at Angle"
         },
         {
           "cmd": "ConstructionTangentPlaneCommand",
           "label": "Tangent Plane",
-          "match": "Tangent Plane",
-          "icon": "planetangent"
+          "match": "Tangent Plane"
         },
         {
           "cmd": "ConstructionMidPlaneCommand",
           "label": "Midplane",
-          "match": "Midplane",
-          "icon": "planemid"
+          "match": "Midplane"
         },
         {
           "cmd": "ConstructionPlaneFromTwoEdgesCommand",
           "label": "Plane 2 Edges",
-          "match": "Plane Through Two Edges",
-          "icon": "plane2edge"
+          "match": "Plane Through Two Edges"
         },
         {
           "cmd": "ConstructionPlaneFromThreePointsCommand",
           "label": "Plane 3 Pts",
-          "match": "Plane Through Three Points",
-          "icon": "plane3pt"
+          "match": "Plane Through Three Points"
         },
         {
           "cmd": "ConstructionAxisThroughTwoPointsCommand",
           "label": "Axis 2 Pts",
-          "match": "Axis Through Two Points",
-          "icon": "axis2pt"
+          "match": "Axis Through Two Points"
         },
         {
           "cmd": "ConstructionAxisNormalToFaceCommand",
           "label": "Axis Perp",
-          "match": "Axis Perpendicular to Face at Point",
-          "icon": "axisperp"
+          "match": "Axis Perpendicular to Face at Point"
         },
         {
           "cmd": "ConstructionPointFromPointCommand",
           "label": "Point Vertex",
-          "match": "Point at Vertex",
-          "icon": "pointvertex"
+          "match": "Point at Vertex"
         },
         {
           "cmd": "ConstructionPointFromThreePlanesCommand",
           "label": "Point 3 Planes",
-          "match": "Point Through Three Planes",
-          "icon": "point3plane"
+          "match": "Point Through Three Planes"
         }
       ]
     },
@@ -468,8 +419,7 @@
         {
           "cmd": "DrawPolyline",
           "label": "Line",
-          "match": "Line",
-          "icon": "line"
+          "match": "Line"
         },
         {
           "page": "sketch.rectangle",
@@ -510,26 +460,22 @@
         {
           "cmd": "DrawPoint",
           "label": "Point",
-          "match": "Point",
-          "icon": "point"
+          "match": "Point"
         },
         {
           "cmd": "MTextCmd",
           "label": "Text",
-          "match": "Text",
-          "icon": "text"
+          "match": "Text"
         },
         {
           "cmd": "SketchDimension",
           "label": "Dimension",
-          "match": "Sketch Dimension",
-          "icon": "dimension"
+          "match": "Sketch Dimension"
         },
         {
           "cmd": "TrimSketchCmd",
           "label": "Trim",
-          "match": "Trim",
-          "icon": "trim"
+          "match": "Trim"
         },
         {
           "page": "sketch.create",
@@ -563,20 +509,17 @@
         {
           "cmd": "ShapeRectangleTwoPoint",
           "label": "2-Point",
-          "match": "2-Point Rectangle",
-          "icon": "rect2pt"
+          "match": "2-Point Rectangle"
         },
         {
           "cmd": "ShapeRectangleThreePoint",
           "label": "3-Point",
-          "match": "3-Point Rectangle",
-          "icon": "rect3pt"
+          "match": "3-Point Rectangle"
         },
         {
           "cmd": "ShapeRectangleCenter",
           "label": "Center",
-          "match": "Center Rectangle",
-          "icon": "rectcenter"
+          "match": "Center Rectangle"
         }
       ]
     },
@@ -586,32 +529,27 @@
         {
           "cmd": "CircleCenterRadius",
           "label": "Center Dia",
-          "match": "Center Diameter Circle",
-          "icon": "circlecenter"
+          "match": "Center Diameter Circle"
         },
         {
           "cmd": "CircleTwoPoint",
           "label": "2-Point",
-          "match": "2-Point Circle",
-          "icon": "circle2pt"
+          "match": "2-Point Circle"
         },
         {
           "cmd": "CircleThreePoint",
           "label": "3-Point",
-          "match": "3-Point Circle",
-          "icon": "circle3pt"
+          "match": "3-Point Circle"
         },
         {
           "cmd": "CircleTanTanRadius",
           "label": "2-Tangent",
-          "match": "2-Tangent Circle",
-          "icon": "circle2tan"
+          "match": "2-Tangent Circle"
         },
         {
           "cmd": "CircleThreeTangent",
           "label": "3-Tangent",
-          "match": "3-Tangent Circle",
-          "icon": "circle3tan"
+          "match": "3-Tangent Circle"
         }
       ]
     },
@@ -621,20 +559,17 @@
         {
           "cmd": "ArcThreePoint",
           "label": "3-Point",
-          "match": "3-Point Arc",
-          "icon": "arc3pt"
+          "match": "3-Point Arc"
         },
         {
           "cmd": "ArcCenterTwoPoint",
           "label": "Center",
-          "match": "Center Point Arc",
-          "icon": "arccenter"
+          "match": "Center Point Arc"
         },
         {
           "cmd": "ArcTangent",
           "label": "Tangent",
-          "match": "Tangent Arc",
-          "icon": "arctangent"
+          "match": "Tangent Arc"
         }
       ]
     },
@@ -644,20 +579,17 @@
         {
           "cmd": "ShapePolygonCircumscribed",
           "label": "Circumscribed",
-          "match": "Circumscribed Polygon",
-          "icon": "polycircum"
+          "match": "Circumscribed Polygon"
         },
         {
           "cmd": "ShapePolygonInscribed",
           "label": "Inscribed",
-          "match": "Inscribed Polygon",
-          "icon": "polyinscribed"
+          "match": "Inscribed Polygon"
         },
         {
           "cmd": "ShapePolygonEdge",
           "label": "Edge",
-          "match": "Edge Polygon",
-          "icon": "polyedge"
+          "match": "Edge Polygon"
         }
       ]
     },
@@ -667,32 +599,27 @@
         {
           "cmd": "ShapeSlotCenterToCenter",
           "label": "Ctr to Ctr",
-          "match": "Center to Center Slot",
-          "icon": "slotctr"
+          "match": "Center to Center Slot"
         },
         {
           "cmd": "ShapeSlotOverall",
           "label": "Overall",
-          "match": "Overall Slot",
-          "icon": "slotoverall"
+          "match": "Overall Slot"
         },
         {
           "cmd": "ShapeSlotCenterPoint",
           "label": "Center Pt",
-          "match": "Center Point Slot",
-          "icon": "slotcenterpt"
+          "match": "Center Point Slot"
         },
         {
           "cmd": "ShapeArcSlotThreePoint",
           "label": "3-Pt Arc",
-          "match": "3 Point Arc Slot",
-          "icon": "slot3ptarc"
+          "match": "3 Point Arc Slot"
         },
         {
           "cmd": "ShapeArcSlotCenterTwoPoint",
           "label": "Ctr Pt Arc",
-          "match": "Center Point Arc Slot",
-          "icon": "slotctrarc"
+          "match": "Center Point Arc Slot"
         }
       ]
     },
@@ -702,20 +629,17 @@
         {
           "cmd": "DrawSpline",
           "label": "Fit Point",
-          "match": "Fit Point Spline",
-          "icon": "splinefit"
+          "match": "Fit Point Spline"
         },
         {
           "cmd": "DrawCVMSpline3D",
           "label": "Control Pt",
-          "match": "Control Point Spline",
-          "icon": "splinectrl"
+          "match": "Control Point Spline"
         },
         {
           "cmd": "ConicCurveCmd",
           "label": "Conic",
-          "match": "Conic Curve",
-          "icon": "conic"
+          "match": "Conic Curve"
         }
       ]
     },
@@ -725,56 +649,47 @@
         {
           "cmd": "FilletSketchCmd",
           "label": "Fillet",
-          "match": "Fillet",
-          "icon": "sketchfillet"
+          "match": "Fillet"
         },
         {
           "cmd": "ChamferSketchEqualDistance",
           "label": "Chamfer",
-          "match": "Equal Distance Chamfer",
-          "icon": "sketchchamfer"
+          "match": "Equal Distance Chamfer"
         },
         {
           "cmd": "TrimSketchCmd",
           "label": "Trim",
-          "match": "Trim",
-          "icon": "trim"
+          "match": "Trim"
         },
         {
           "cmd": "ExtendSketchCmd",
           "label": "Extend",
-          "match": "Extend",
-          "icon": "extend"
+          "match": "Extend"
         },
         {
           "cmd": "BreakSketchCmd",
           "label": "Break",
-          "match": "Break",
-          "icon": "break"
+          "match": "Break"
         },
         {
           "cmd": "SketchScaleCmd",
           "label": "Scale",
-          "match": "Sketch Scale",
-          "icon": "sketchscale"
+          "match": "Sketch Scale"
         },
         {
           "cmd": "Offset",
           "label": "Offset",
-          "match": "Offset",
-          "icon": "offset"
+          "match": "Offset"
         },
         {
           "cmd": "FusionMoveCommand",
           "label": "Move",
-          "match": "Move/Copy",
-          "icon": "sketchmove"
+          "match": "Move/Copy"
         },
         {
           "cmd": "SketchConstructionCmd",
           "label": "Construction",
-          "match": "Normal/Construction",
-          "icon": "construction"
+          "match": "Normal/Construction"
         }
       ]
     },
@@ -784,74 +699,62 @@
         {
           "cmd": "ConstraintHorizontalVertical",
           "label": "Horiz/Vert",
-          "match": "Horizontal/Vertical",
-          "icon": "cnhorizvert"
+          "match": "Horizontal/Vertical"
         },
         {
           "cmd": "ConstraintCoincident",
           "label": "Coincident",
-          "match": "Coincident",
-          "icon": "cncoincident"
+          "match": "Coincident"
         },
         {
           "cmd": "ConstraintTangent",
           "label": "Tangent",
-          "match": "Tangent",
-          "icon": "cntangent"
+          "match": "Tangent"
         },
         {
           "cmd": "ConstraintEqual",
           "label": "Equal",
-          "match": "Equal",
-          "icon": "cnequal"
+          "match": "Equal"
         },
         {
           "cmd": "ConstraintParallel",
           "label": "Parallel",
-          "match": "Parallel",
-          "icon": "cnparallel"
+          "match": "Parallel"
         },
         {
           "cmd": "ConstraintPerpendicular",
           "label": "Perpendicular",
-          "match": "Perpendicular",
-          "icon": "cnperp"
+          "match": "Perpendicular"
         },
         {
           "cmd": "ConstraintFix",
           "label": "Fix/UnFix",
-          "match": "Fix/UnFix",
-          "icon": "cnfix"
+          "match": "Fix/UnFix"
         },
         {
           "cmd": "ConstraintMidPoint",
           "label": "Midpoint",
-          "match": "Midpoint",
-          "icon": "cnmidpoint"
+          "match": "Midpoint"
         },
         {
           "cmd": "ConstraintConcentric",
           "label": "Concentric",
-          "match": "Concentric",
-          "icon": "cnconcentric"
+          "match": "Concentric"
         },
         {
           "cmd": "ConstraintCollinear",
           "label": "Collinear",
-          "match": "Collinear",
-          "icon": "cncollinear"
+          "match": "Collinear"
         },
         {
           "cmd": "ConstraintSymmetry",
           "label": "Symmetry",
-          "match": "Symmetry",
-          "icon": "cnsymmetry"
+          "match": "Symmetry"
         },
         {
           "cmd": "ConstraintSmooth",
           "label": "Curvature",
-          "match": "Curvature",
-          "icon": "cncurvature"
+          "match": "Curvature"
         }
       ]
     },
@@ -861,62 +764,52 @@
         {
           "cmd": "SketchCreate",
           "label": "Sketch",
-          "match": "Create Sketch",
-          "icon": "sketch"
+          "match": "Create Sketch"
         },
         {
           "cmd": "FusionSurfacePatchCommand",
           "label": "Patch",
-          "match": "Patch",
-          "icon": "patch"
+          "match": "Patch"
         },
         {
           "cmd": "SurfaceExtrude",
           "label": "Extrude",
-          "match": "Extrude",
-          "icon": "extrude"
+          "match": "Extrude"
         },
         {
           "cmd": "SurfaceRevolve",
           "label": "Revolve",
-          "match": "Revolve",
-          "icon": "revolve"
+          "match": "Revolve"
         },
         {
           "cmd": "FusionSurfaceOffsetCommand",
           "label": "Offset",
-          "match": "Offset",
-          "icon": "offset"
+          "match": "Offset"
         },
         {
           "cmd": "FusionSurfaceTrimCommand",
           "label": "Trim",
-          "match": "Trim",
-          "icon": "trim"
+          "match": "Trim"
         },
         {
           "cmd": "FusionExtendCommand",
           "label": "Extend",
-          "match": "Extend",
-          "icon": "extend"
+          "match": "Extend"
         },
         {
           "cmd": "FusionSurfaceStitchCommand",
           "label": "Stitch",
-          "match": "Stitch",
-          "icon": "stitch"
+          "match": "Stitch"
         },
         {
           "cmd": "FusionSurfaceUnStitchCommand",
           "label": "Unstitch",
-          "match": "Unstitch",
-          "icon": "unstitch"
+          "match": "Unstitch"
         },
         {
           "cmd": "FusionSurfaceReverseNormalCommand",
           "label": "Reverse",
-          "match": "Reverse Normal",
-          "icon": "reverse"
+          "match": "Reverse Normal"
         },
         {
           "page": "view",
@@ -932,44 +825,37 @@
         {
           "cmd": "ParaMeshInsertCommand",
           "label": "Insert Mesh",
-          "match": "Insert Mesh",
-          "icon": "meshinsert"
+          "match": "Insert Mesh"
         },
         {
           "cmd": "ParaMeshRepairCommand",
           "label": "Repair",
-          "match": "Repair",
-          "icon": "meshrepair"
+          "match": "Repair"
         },
         {
           "cmd": "ParaMeshRemeshCommand",
           "label": "Remesh",
-          "match": "Remesh",
-          "icon": "remesh"
+          "match": "Remesh"
         },
         {
           "cmd": "ParaMeshReduceCommand",
           "label": "Reduce",
-          "match": "Reduce",
-          "icon": "reduce"
+          "match": "Reduce"
         },
         {
           "cmd": "ParaMeshPlaneCutCommand",
           "label": "Plane Cut",
-          "match": "Plane Cut",
-          "icon": "planecut"
+          "match": "Plane Cut"
         },
         {
           "cmd": "ParaMeshSmoothCommand",
           "label": "Smooth",
-          "match": "Smooth",
-          "icon": "smooth"
+          "match": "Smooth"
         },
         {
           "cmd": "ParaMeshConvertCommand",
           "label": "Convert",
-          "match": "Convert Mesh",
-          "icon": "meshconvert"
+          "match": "Convert Mesh"
         },
         {
           "page": "view",
@@ -985,50 +871,42 @@
         {
           "cmd": "SketchCreate",
           "label": "Sketch",
-          "match": "Create Sketch",
-          "icon": "sketch"
+          "match": "Create Sketch"
         },
         {
           "cmd": "FusionSheetMetalFlangeCommand",
           "label": "Flange",
-          "match": "Flange (Base/Edge/Contour)",
-          "icon": "flange"
+          "match": "Flange (Base/Edge/Contour)"
         },
         {
           "cmd": "FusionSheetMetalHemFlangeCommand",
           "label": "Hem",
-          "match": "Hem",
-          "icon": "hem"
+          "match": "Hem"
         },
         {
           "cmd": "SheetMetalFoldCmd",
           "label": "Fold",
-          "match": "Fold",
-          "icon": "fold"
+          "match": "Fold"
         },
         {
           "cmd": "FusionSheetmetalUnfoldCommand",
           "label": "Unfold",
-          "match": "Unfold",
-          "icon": "unfold"
+          "match": "Unfold"
         },
         {
           "cmd": "FusionSheetmetalRefoldCommand",
           "label": "Refold",
-          "match": "Refold",
-          "icon": "refold"
+          "match": "Refold"
         },
         {
           "cmd": "FusionSheetMetalFlatPatternCmd",
           "label": "Flat Pattern",
-          "match": "Create Flat Pattern",
-          "icon": "flatpattern"
+          "match": "Create Flat Pattern"
         },
         {
           "cmd": "FusionSheetMetalRulesCommand",
           "label": "Rules",
-          "match": "Sheet Metal Rules",
-          "icon": "smrules"
+          "match": "Sheet Metal Rules"
         },
         {
           "page": "view",
@@ -1044,62 +922,50 @@
       "keys": [
         {
           "label": "Fit",
-          "icon": "fit",
           "view": "fit"
         },
         {
           "label": "Home",
-          "icon": "viewhome",
           "view": "home"
         },
         {
           "label": "Iso",
-          "icon": "viewiso",
           "view": "iso"
         },
         {
           "label": "Front",
-          "icon": "viewfront",
           "view": "front"
         },
         {
           "label": "Back",
-          "icon": "viewback",
           "view": "back"
         },
         {
           "label": "Left",
-          "icon": "viewleft",
           "view": "left"
         },
         {
           "label": "Right",
-          "icon": "viewright",
           "view": "right"
         },
         {
           "label": "Top",
-          "icon": "viewtop",
           "view": "top"
         },
         {
           "label": "Bottom",
-          "icon": "viewbottom",
           "view": "bottom"
         },
         {
           "label": "Shaded",
-          "icon": "shaded",
           "view": "shaded"
         },
         {
           "label": "Shaded+Edges",
-          "icon": "shadededges",
           "view": "shadededges"
         },
         {
           "label": "Wireframe",
-          "icon": "wireframe",
           "view": "wireframe"
         }
       ]
@@ -1111,13 +977,11 @@
         {
           "text": "NuCommands.CommitCmd",
           "label": "OK",
-          "icon": "ok",
           "accent": "#2e7d32"
         },
         {
           "text": "NuCommands.CancelCmd",
           "label": "Cancel",
-          "icon": "cancel",
           "accent": "#b71c1c"
         }
       ]
@@ -1128,32 +992,27 @@
         {
           "cmd": "CircleElipse",
           "label": "Ellipse",
-          "match": "Ellipse",
-          "icon": "ellipse"
+          "match": "Ellipse"
         },
         {
           "cmd": "ConicCurveCmd",
           "label": "Conic",
-          "match": "Conic Curve",
-          "icon": "conic"
+          "match": "Conic Curve"
         },
         {
           "cmd": "MirrorSketchCommand",
           "label": "Mirror",
-          "match": "Mirror",
-          "icon": "sketchmirror"
+          "match": "Mirror"
         },
         {
           "cmd": "CircularSketchPatternCommand",
           "label": "Circ Pattern",
-          "match": "Circular Pattern",
-          "icon": "circpattern"
+          "match": "Circular Pattern"
         },
         {
           "cmd": "RectangularSketchPatternCommand",
           "label": "Rect Pattern",
-          "match": "Rectangular Pattern",
-          "icon": "rectpattern"
+          "match": "Rectangular Pattern"
         },
         {
           "page": "sketch.project",
@@ -1169,38 +1028,32 @@
         {
           "cmd": "ProjectNewCmd",
           "label": "Project",
-          "match": "Project",
-          "icon": "project"
+          "match": "Project"
         },
         {
           "cmd": "IntersectCmd",
           "label": "Intersect",
-          "match": "Intersect",
-          "icon": "intersect"
+          "match": "Intersect"
         },
         {
           "cmd": "Include3DGeometry",
           "label": "Include 3D",
-          "match": "Include 3D Geometry",
-          "icon": "include3d"
+          "match": "Include 3D Geometry"
         },
         {
           "cmd": "ProjectToSurface",
           "label": "To Surface",
-          "match": "Project To Surface",
-          "icon": "projsurface"
+          "match": "Project To Surface"
         },
         {
           "cmd": "IntersectionCurve",
           "label": "Isect Curve",
-          "match": "Intersection Curve",
-          "icon": "isectcurve"
+          "match": "Intersection Curve"
         },
         {
           "cmd": "SketchIsoparametricCurve",
           "label": "Isoparam",
-          "match": "Isoparametric Curve",
-          "icon": "isoparam"
+          "match": "Isoparametric Curve"
         }
       ]
     }
