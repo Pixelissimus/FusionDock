@@ -111,21 +111,28 @@ fringe. Then copy the file into `static/` and run `node scripts/install.js --for
 
 ### Progress 2026-07-27
 
-**DONE — `create-solid.png`.** A cube, cylinder and sphere grouped as a set, so it reads as a
-menu rather than one command. Generated, keyed to transparency, installed and committed. Chat:
-"Fusion 360 Icon Design".
+All six are done. What each shows:
 
-**Icon 2 (Modify solid) is blocked, not abandoned.** ChatGPT's image generator returned "the
-image generation step hit an error" twice in a row. Not a prompt fault — the identical rules
-had just produced icon 1 cleanly. Worth simply retrying later.
+| File | Subject |
+| --- | --- |
+| `create-solid` | a cube, cylinder and sphere grouped as a set — a menu, not one command |
+| `modify-solid` | a single cube with one edge filleted and a corner chamfered |
+| `create-sketch` | a rectangle, circle and line overlapping, with blue endpoint handles |
+| `modify-sketch` | two lines meeting at a corner rounded by a fillet arc |
+| `constrain-sketch` | two offset lines with a blue right-angle marker between them |
+| `view` | an isometric ViewCube with a curved arrow sweeping round it |
 
-**Still to make:** `modify-solid`, `create-sketch`, `modify-sketch`, `constrain-sketch`, `view`.
-One at a time, each checked against Fusion's real icons before moving on.
+**The image generator errors intermittently.** "The image generation step hit an error" hit
+three times running on one icon, then the identical prompt worked on a retry. It is not the
+prompt and not the chat length — both were ruled out. Just resend.
 
-**The code side is already done.** The layout's `icon` field now resolves to
-`static/<name>.png` (commit d3d5cc6), with Fusion's own icons still winning wherever a command
-exists. Dropping a PNG into `static/` and running `node scripts/install.js --force` is all that
-each remaining icon needs.
+**The code side is done too.** The layout's `icon` field resolves to `static/<name>.png`
+(commit d3d5cc6), with Fusion's own icons still winning wherever a command exists.
+
+Note that wiring `icon` up also exposed **147 dead references**: every key carried an `icon`
+name, no matching art had ever existed, and nothing read the field until now. Left alone they
+would each have cost a failed fetch per repaint. They are gone. View directions, OK/Cancel and
+"Waiting for Fusion" stay as text on purpose — "Front" reads better than a glyph.
 
 **Constraint:** whatever is produced ships in `static/`. Autodesk's own artwork is never
 bundled — Fusion icons are read from the local install at runtime, and that must stay true.
