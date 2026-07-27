@@ -1,0 +1,69 @@
+{
+    "SDKVersion": 1,
+    "Name": "Fusion 360",
+    "Version": "0.1.0",
+    "Author": "fusion-360-stream-dock",
+    "Description": "Context-aware control surface for Autodesk Fusion 360. Keys follow the workspace, environment and sketch mode you are actually in.",
+    "Category": "Fusion 360",
+    "CategoryIcon": "static/category.png",
+    "Icon": "static/plugin.png",
+    "URL": "https://github.com/",
+    "CodePath": "plugin/index.html",
+    "PropertyInspectorPath": "propertyInspector/index.html",
+    "Software": {
+        "MinimumVersion": "2.9"
+    },
+    "OS": [
+        {
+            "Platform": "windows",
+            "MinimumVersion": "10"
+        }
+    ],
+    "ApplicationsToMonitor": {
+        "windows": [
+            "Fusion360.exe"
+        ]
+    },
+    "Actions": [
+        {
+            "UUID": "com.fusiondock.streamdock.key",
+            "Name": "Fusion Key (Landscape)",
+            "Tooltip": "Place on every key when you use the device on its side: 5 wide, 3 tall, dial bottom right. Each key decides what it does from Fusion's current context.",
+            "Icon": "static/action.png",
+            "Controllers": [
+                "Keypad",
+                "Information",
+                "Knob"
+            ],
+            "UserTitleEnabled": false,
+            "SupportedInMultiActions": false,
+            "States": [
+                {
+                    "Image": "static/default.png",
+                    "TitleAlignment": "bottom",
+                    "FontSize": "10"
+                }
+            ]
+        },
+        {
+            "UUID": "com.fusiondock.streamdock.key.portrait",
+            "Name": "Fusion Key (Portrait)",
+            "Tooltip": "Place on every key when you use the device upright: 3 wide, 5 tall, dial top right. Identical to the landscape action except that it tells the plugin which way round you are working.",
+            "Icon": "static/action.png",
+            "Controllers": [
+                "Keypad",
+                "Information",
+                "Knob"
+            ],
+            "UserTitleEnabled": false,
+            "SupportedInMultiActions": false,
+            "States": [
+                {
+                    "Image": "static/default.png",
+                    "TitleAlignment": "bottom",
+                    "FontSize": "10"
+                }
+            ]
+        }
+    ]
+}

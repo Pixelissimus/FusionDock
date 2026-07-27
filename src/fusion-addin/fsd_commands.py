@@ -1,0 +1,275 @@
+"""Executes Fusion commands and resolves their icons from the local install.
+
+Must only be called on Fusion's main thread.
+
+Two execution paths:
+  * commandDefinitions.itemById(id).execute() -- the supported route, used by default.
+  * executeTextCommand -- an escape hatch for commands execute() will not start on its own.
+    Text commands are undocumented and change between Fusion builds, so they live in an
+    editable JSON file rather than in this module.
+"""
+
+import json
+import os
+import re
+import sys
+
+import adsk.core
+
+# Icons ship as a folder per command containing size-named PNGs. We render onto 96x96 keys,
+# so prefer the largest available and let the plugin downscale.
+_SIZE_PATTERN = re.compile(r"(\d+)\s*x\s*(\d+)", re.IGNORECASE)
+
+_OVERRIDES_FILENAME = "command_overrides.json"
+
+_icon_cache = {}
+_overrides = None
+
+
+def deploy_folder():
+    """The webdeploy/production/<hash> folder for the running Fusion build.
+
+    The hash changes on every Fusion update, so it must never be hardcoded. sys.argv[0] is
+    the Fusion executable on Windows, which lives inside the deploy folder.
+    """
+    try:
+        return os.path.dirname(os.path.realpath(sys.argv[0]))
+    except Exception:
+        return ""
+
+
+def load_overrides(addin_dir):
+    """Load per-command text-command overrides. Missing file is normal, not an error."""
+    global _overrides
+    path = os.path.join(addin_dir, _OVERRIDES_FILENAME)
+    try:
+        with open(path, "r", encoding="utf-8") as handle:
+            data = json.load(handle)
+        _overrides = data.get("overrides", {}) if isinstance(data, dict) else {}
+    except FileNotFoundError:
+        _overrides = {}
+    except Exception:
+        # A malformed overrides file must not stop the add-in loading; the built-in
+        # execute() path still works for the great majority of commands.
+        _overrides = {}
+    return _overrides
+
+
+def _get_overrides():
+    return _overrides if _overrides is not None else {}
+
+
+def execute(app, ui, command_id):
+    """Run a Fusion command. Returns (ok, message)."""
+    if not command_id:
+        return False, "no command id"
+
+    override = _get_overrides().get(command_id)
+    if override:
+        return execute_text_sequence(app, override)
+
+    try:
+        definition = ui.commandDefinitions.itemById(command_id)
+    except Exception as exc:
+        return False, "lookup failed: %s" % exc
+    if not definition:
+        return False, "unknown command: %s" % command_id
+
+    try:
+        # Documented as equivalent to the user clicking the command's button. Legal here
+        # because we are inside a CustomEvent handler, not a command-related event.
+        started = definition.execute()
+    except Exception as exc:
+        return False, "execute failed: %s" % exc
+    if not started:
+        # Common and expected: many commands refuse to start without a valid selection or
+        # outside their own environment. The plugin surfaces this as a key alert.
+        return False, "command declined to start (context or selection may be wrong)"
+    return True, "ok"
+
+
+# Fusion exposes NO command definition for the standard view orientations or visual styles --
+# confirmed against a dump of all 3110 definitions on 2026-07-27: there is no "Front View",
+# "Top View", "Isometric" or "Shaded" command to execute(). They are viewport properties.
+#
+# This is the strongest argument for the add-in architecture: a keystroke sender cannot reach
+# these at all, because they have neither a command id nor a bindable keyboard shortcut.
+_VIEW_ORIENTATIONS = {
+    "front": "FrontViewOrientation",
+    "back": "BackViewOrientation",
+    "left": "LeftViewOrientation",
+    "right": "RightViewOrientation",
+    "top": "TopViewOrientation",
+    "bottom": "BottomViewOrientation",
+    "iso": "IsoTopRightViewOrientation",
+}
+
+_VISUAL_STYLES = {
+    "shaded": "ShadedVisualStyle",
+    "shadededges": "ShadedWithVisibleEdgesOnlyVisualStyle",
+    "wireframe": "WireframeVisualStyle",
+}
+
+
+def set_view(app, target):
+    """Point the active viewport at a named orientation, visual style, fit or home.
+
+    Main thread only. Returns (ok, message).
+    """
+    if not target:
+        return False, "no view target"
+
+    try:
+        viewport = app.activeViewport
+    except Exception as exc:
+        return False, "no viewport: %s" % exc
+    if not viewport:
+        return False, "no active viewport"
+
+    if target == "fit":
+        try:
+            viewport.fit()
+        except Exception as exc:
+            return False, "fit failed: %s" % exc
+        return True, "ok"
+
+    if target == "home":
+        try:
+            viewport.goHome(True)
+        except Exception as exc:
+            return False, "home failed: %s" % exc
+        return True, "ok"
+
+    if target in _VISUAL_STYLES:
+        # getattr rather than a direct reference: if a style is renamed in a future Fusion
+        # build this reports a clear message instead of raising on import.
+        style = getattr(adsk.core.VisualStyles, _VISUAL_STYLES[target], None)
+        if style is None:
+            return False, "unknown visual style: %s" % target
+        try:
+            viewport.visualStyle = style
+        except Exception as exc:
+            return False, "visual style failed: %s" % exc
+        return True, "ok"
+
+    if target in _VIEW_ORIENTATIONS:
+        orientation = getattr(adsk.core.ViewOrientations, _VIEW_ORIENTATIONS[target], None)
+        if orientation is None:
+            return False, "unknown orientation: %s" % target
+        try:
+            camera = viewport.camera
+            camera.viewOrientation = orientation
+            # The camera is a value object -- mutating it does nothing until it is assigned
+            # back. isSmoothTransition is set so the move reads as a camera move, not a jump.
+            camera.isSmoothTransition = True
+            viewport.camera = camera
+        except Exception as exc:
+            return False, "orientation failed: %s" % exc
+        return True, "ok"
+
+    return False, "unknown view target: %s" % target
+
+
+def execute_text_sequence(app, commands):
+    """Run one or more text commands in order. Undocumented API -- may break on updates."""
+    if isinstance(commands, str):
+        commands = [commands]
+    results = []
+    for text in commands:
+        try:
+            results.append(app.executeTextCommand(text))
+        except Exception as exc:
+            return False, "text command failed at %r: %s" % (text, exc)
+    return True, " | ".join(str(r) for r in results if r)
+
+
+def _best_icon_file(folder):
+    """Largest size-named PNG in an icon folder, or any PNG if none are size-named."""
+    try:
+        names = os.listdir(folder)
+    except Exception:
+        return None
+
+    best_path, best_area = None, -1
+    fallback = None
+    for name in names:
+        if not name.lower().endswith(".png"):
+            continue
+        # Fusion ships light and dark variants in the same folder. The device keys are dark,
+        # so the standard (light-on-dark) icon reads correctly; skip explicit dark variants
+        # which are drawn for light backgrounds.
+        if "_dark" in name.lower():
+            continue
+        path = os.path.join(folder, name)
+        match = _SIZE_PATTERN.search(name)
+        if match:
+            area = int(match.group(1)) * int(match.group(2))
+            if area > best_area:
+                best_path, best_area = path, area
+        elif fallback is None:
+            fallback = path
+    return best_path or fallback
+
+
+def resolve_icon(ui, command_id):
+    """PNG bytes for a command's icon, or None. Cached for the session."""
+    if command_id in _icon_cache:
+        return _icon_cache[command_id]
+
+    data = None
+    try:
+        definition = ui.commandDefinitions.itemById(command_id)
+        folder = definition.resourceFolder if definition else None
+    except Exception:
+        # Some command definitions raise on resourceFolder. Community code all guards this.
+        folder = None
+
+    if folder:
+        if not os.path.isabs(folder):
+            folder = os.path.join(deploy_folder(), folder)
+        icon_file = _best_icon_file(folder)
+        if icon_file:
+            try:
+                with open(icon_file, "rb") as handle:
+                    data = handle.read()
+            except Exception:
+                data = None
+
+    _icon_cache[command_id] = data
+    return data
+
+
+def list_commands(ui):
+    """Every command definition Fusion has created so far.
+
+    Note: definitions are created lazily. A workspace the user has not visited this session
+    may contribute nothing here, so this list grows as Fusion is used. Dump it after
+    visiting every workspace to get a complete inventory.
+    """
+    commands = []
+    try:
+        definitions = ui.commandDefinitions
+    except Exception:
+        return commands
+
+    for definition in definitions:
+        try:
+            command_id = definition.id
+        except Exception:
+            continue
+        entry = {"id": command_id}
+        try:
+            entry["name"] = definition.name
+        except Exception:
+            entry["name"] = command_id
+        try:
+            entry["isNative"] = definition.isNative
+        except Exception:
+            pass
+        try:
+            entry["hasIcon"] = bool(definition.resourceFolder)
+        except Exception:
+            entry["hasIcon"] = False
+        commands.append(entry)
+    commands.sort(key=lambda item: item["id"])
+    return commands

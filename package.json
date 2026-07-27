@@ -1,0 +1,15 @@
+{
+  "name": "fusion-360-stream-dock",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Context-aware VSD Stream Dock N1 control surface for Autodesk Fusion 360",
+  "scripts": {
+    "test": "node --test --test-concurrency=1 \"tests/test-*.js\"",
+    "simulator": "node tests/fake-bridge.js",
+    "icons": "node scripts/make-icons.js",
+    "install-plugin": "node scripts/install.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

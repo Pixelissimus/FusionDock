@@ -1,0 +1,47 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Logs
+*.log
+logs/
+
+# Temporary and cache files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+.cache/
+
+# Build and generated output
+output/
+dist/
+build/
+
+# Operating system metadata
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Editor and IDE
+.idea/
+.vscode/
+*.sublime-workspace
+
+# Dependencies
+node_modules/
+
+# Python bytecode (Fusion compiles the add-in on load)
+__pycache__/
+*.pyc

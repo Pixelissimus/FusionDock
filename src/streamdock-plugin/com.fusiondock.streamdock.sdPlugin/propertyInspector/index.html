@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Fusion 360 settings</title>
+    <style>
+        body {
+            font: 13px/1.5 "Segoe UI", system-ui, sans-serif;
+            color: #d8d8d8;
+            background: #2d2d2d;
+            margin: 0;
+            padding: 12px;
+        }
+        label { display: block; margin: 14px 0 4px; font-weight: 600; }
+        select, input {
+            width: 100%;
+            padding: 6px;
+            background: #3d3d3d;
+            color: #eee;
+            border: 1px solid #555;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+        .hint { color: #999; font-size: 11px; margin-top: 4px; }
+        .status { margin-top: 16px; padding: 8px; border-radius: 3px; background: #3d3d3d; }
+        .ok { color: #6dd36d; }
+        .bad { color: #ff7b7b; }
+    </style>
+</head>
+<body>
+
+<label>Device orientation</label>
+<div class="hint">
+    Not a setting &mdash; it follows the action you placed.
+    Use <strong>Fusion Key (Landscape)</strong> for 5 wide by 3 tall, dial bottom right, or
+    <strong>Fusion Key (Portrait)</strong> for 3 wide by 5 tall, dial top right.
+    Whichever you placed on most keys wins.
+    <br><br>
+    To switch, replace the keys with the other action. There is no dropdown on purpose: the
+    device always reports the same size however it is held, so a setting here could disagree
+    with how you are actually holding it &mdash; and then every key lands in the wrong place.
+    <br><br>
+    Icon rotation is separate and belongs to VSD Craft's own per-device rotation setting.
+</div>
+
+<label for="port">Fusion bridge port</label>
+<input id="port" type="number" min="1024" max="65535" value="8731">
+<div class="hint">Must match <code>port</code> in the add-in's config.json. Only change if 8731 clashes.</div>
+
+<div class="status" id="status">Checking for Fusion&hellip;</div>
+
+<script>
+    var socket = null;
+    var uuid = null;
+    // Orientation is not stored here any more -- it is derived from which action the user
+    // placed on the keys. Only the port is a real setting.
+    var settings = { port: 8731 };
+
+    function save() {
+        if (!socket || socket.readyState !== 1) { return; }
+        socket.send(JSON.stringify({ event: 'setGlobalSettings', context: uuid, payload: settings }));
+    }
+
+    function checkBridge() {
+        var status = document.getElementById('status');
+        fetch('http://127.0.0.1:' + settings.port + '/health')
+            .then(function (response) { return response.json(); })
+            .then(function () {
+                status.innerHTML = '<span class="ok">Connected.</span> Fusion add-in is running.';
+            })
+            .catch(function () {
+                status.innerHTML = '<span class="bad">Not connected.</span> '
+                    + 'Start Fusion 360, and check the add-in is running under '
+                    + 'Utilities &rsaquo; Scripts and Add-Ins.';
+            });
+    }
+
+    document.getElementById('port').addEventListener('change', function (event) {
+        settings.port = Number(event.target.value) || 8731;
+        save();
+        checkBridge();
+    });
+
+    function connectElgatoStreamDeckSocket(port, inUUID, registerEvent, info, actionInfo) {
+        uuid = inUUID;
+        socket = new WebSocket('ws://127.0.0.1:' + port);
+        socket.onopen = function () {
+            socket.send(JSON.stringify({ event: registerEvent, uuid: inUUID }));
+            socket.send(JSON.stringify({ event: 'getGlobalSettings', context: inUUID }));
+        };
+        socket.onmessage = function (message) {
+            var parsed = JSON.parse(message.data);
+            if (parsed.event === 'didReceiveGlobalSettings' && parsed.payload) {
+                var stored = parsed.payload.settings || {};
+                if (stored.port) { settings.port = Number(stored.port); }
+                document.getElementById('port').value = settings.port;
+                checkBridge();
+            }
+        };
+    }
+
+    window.connectElgatoStreamDeckSocket = connectElgatoStreamDeckSocket;
+    setInterval(checkBridge, 5000);
+</script>
+</body>
+</html>

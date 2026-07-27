@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>N1 simulator &mdash; Fusion 360 Stream Dock</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    font: 14px/1.5 "Segoe UI", system-ui, sans-serif;
+    background: #101012; color: #e8e8ea; margin: 0; padding: 24px;
+    display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start;
+  }
+  h1 { font-size: 17px; margin: 0 0 4px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em;
+       color: #8a8a92; margin: 20px 0 8px; }
+  .device {
+    background: #232326; padding: 18px; border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.5); position: relative;
+  }
+  .grid { display: grid; gap: 8px; }
+  .key {
+    width: 76px; height: 76px; background: #0a0a0b; border-radius: 7px;
+    border: 1px solid #35353a; cursor: pointer; position: relative;
+    overflow: hidden; padding: 0; display: block;
+  }
+  .key:active { transform: scale(.95); }
+  .key img { width: 100%; height: 100%; display: block; transition: transform .15s; }
+  .key.unbound { opacity: .25; cursor: default; }
+  .aux-row { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+  .aux {
+    width: 54px; height: 40px; background: #0a0a0b; border: 1px solid #35353a;
+    border-radius: 6px; cursor: pointer; overflow: hidden; padding: 0;
+  }
+  .aux img { width: 100%; height: 100%; object-fit: contain; }
+  .dial { display: flex; gap: 6px; margin-left: auto; align-items: center; }
+  .dial button {
+    background: #35353a; color: #e8e8ea; border: 0; border-radius: 50%;
+    width: 34px; height: 34px; cursor: pointer; font-size: 15px;
+  }
+  .dial button:hover { background: #45454c; }
+  .panel { min-width: 300px; max-width: 420px; }
+  button.ctl {
+    background: #2a2a2e; color: #e8e8ea; border: 1px solid #3d3d44;
+    border-radius: 6px; padding: 7px 11px; cursor: pointer; margin: 0 6px 6px 0;
+    font-size: 13px;
+  }
+  button.ctl:hover { background: #35353c; }
+  button.ctl.on { background: #ff8d2b; color: #1a1a1a; border-color: #ff8d2b; font-weight: 600; }
+  pre {
+    background: #1a1a1d; padding: 10px; border-radius: 6px; font-size: 11.5px;
+    max-height: 260px; overflow: auto; margin: 0; line-height: 1.45;
+  }
+  .status { font-size: 12px; color: #8a8a92; margin-top: 6px; }
+  code { background: #1a1a1d; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div>
+  <h1>VSD Stream Dock N1 &mdash; simulator</h1>
+  <div class="status" id="orientation-label">landscape &middot; 5 &times; 3</div>
+
+  <div class="device" style="margin-top:12px">
+    <div class="grid" id="grid"></div>
+    <div class="aux-row">
+      <button class="aux" id="aux0" title="Auxiliary button 1 (Home)"></button>
+      <button class="aux" id="aux1" title="Auxiliary button 2 (Back)"></button>
+      <div class="dial">
+        <button id="dial-left" title="Rotate anticlockwise">&#8634;</button>
+        <button id="dial-press" title="Press dial">&#9679;</button>
+        <button id="dial-right" title="Rotate clockwise">&#8635;</button>
+      </div>
+    </div>
+  </div>
+
+  <h2>Orientation</h2>
+  <button class="ctl" data-orientation="landscape">Landscape</button>
+  <button class="ctl" data-orientation="portrait">Portrait</button>
+  <div class="status">
+    Icons are counter-rotated here to simulate physically turning the device. If they look
+    upright in both orientations, the rotation constant in <code>grid.js</code> is right.
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Simulated Fusion state</h2>
+  <button class="ctl" data-state='{"inSketch":false,"tab":"SolidTab","workspace":"FusionSolidEnvironment","dialogOpen":false}'>Design &rsaquo; Solid</button>
+  <button class="ctl" data-state='{"inSketch":false,"tab":"SurfaceTab","workspace":"FusionSolidEnvironment","dialogOpen":false}'>Surface</button>
+  <button class="ctl" data-state='{"inSketch":false,"tab":"SheetMetalTab","workspace":"FusionSolidEnvironment","dialogOpen":false}'>Sheet Metal</button>
+  <button class="ctl" data-state='{"inSketch":true,"dialogOpen":false}'>Enter sketch</button>
+  <button class="ctl" data-state='{"dialogOpen":true,"activeCommand":"ExtrudeCommand"}'>Open a dialog</button>
+  <button class="ctl" data-state='{"dialogOpen":false,"activeCommand":"SelectCommand"}'>Close dialog</button>
+  <button class="ctl" data-state='{"connected":false}'>Fusion closed</button>
+  <button class="ctl" data-state='{"connected":true}'>Fusion open</button>
+
+  <h2>Current page</h2>
+  <pre id="page-info">&mdash;</pre>
+
+  <h2>Commands sent to Fusion</h2>
+  <pre id="command-log">nothing yet</pre>
+</div>
+
+<!-- The real plugin sources, served by the fake bridge. Nothing here is a copy. -->
+<script src="/plugin/grid.js"></script>
+<script src="/plugin/layout.js"></script>
+<script src="/plugin/render.js"></script>
+<script>
+/*
+ * Stub the host WebSocket BEFORE main.js loads, so the plugin talks to us instead of a
+ * real Stream Dock host. Everything else in the plugin runs for real: the SSE link, the
+ * layout engine, the canvas rendering.
+ */
+const hostInbox = [];
+let hostSocket = null;
+
+class FakeHostSocket {
+  constructor() {
+    this.readyState = 0;
+    hostSocket = this;
+    setTimeout(() => { this.readyState = 1; if (this.onopen) { this.onopen(); } }, 0);
+  }
+  send(raw) {
+    const message = JSON.parse(raw);
+    if (message.event === 'setImage') {
+      paintKey(message.context, message.payload.image);
+    } else if (message.event === 'showAlert') {
+      flashKey(message.context);
+    } else if (message.event === 'logMessage') {
+      console.log(message.payload.message);
+    }
+    hostInbox.push(message);
+  }
+  close() { this.readyState = 3; }
+}
+window.WebSocket = FakeHostSocket;
+
+function toPlugin(event) {
+  if (hostSocket && hostSocket.onmessage) {
+    hostSocket.onmessage({ data: JSON.stringify(event) });
+  }
+}
+</script>
+<script src="/plugin/main.js"></script>
+<script>
+const NATIVE_COLUMNS = FsdGrid.NATIVE_COLUMNS;
+const NATIVE_ROWS = FsdGrid.NATIVE_ROWS;
+
+let orientation = 'landscape';
+const keyElements = new Map();   // cellId -> <button>
+const contextByCell = new Map(); // cellId -> context string
+const auxContexts = ['aux-0', 'aux-1'];
+const KNOB_CONTEXT = 'knob-0';
+
+function contextForCell(cellId) {
+  return 'key-' + cellId;
+}
+
+function paintKey(context, dataUrl) {
+  let element = null;
+  if (context === auxContexts[0]) {
+    element = document.getElementById('aux0');
+  } else if (context === auxContexts[1]) {
+    element = document.getElementById('aux1');
+  } else {
+    for (const [cellId, ctx] of contextByCell) {
+      if (ctx === context) { element = keyElements.get(cellId); break; }
+    }
+  }
+  if (!element) { return; }
+  let image = element.querySelector('img');
+  if (!image) {
+    image = document.createElement('img');
+    element.appendChild(image);
+  }
+  image.src = dataUrl;
+  // Counter-rotate to simulate the device being physically turned.
+  image.style.transform = `rotate(${-FsdGrid.imageRotation(orientation)}deg)`;
+  element.classList.remove('unbound');
+}
+
+function flashKey(context) {
+  for (const [cellId, ctx] of contextByCell) {
+    if (ctx !== context) { continue; }
+    const element = keyElements.get(cellId);
+    if (!element) { return; }
+    element.style.outline = '2px solid #ff4444';
+    setTimeout(() => { element.style.outline = ''; }, 400);
+  }
+}
+
+/* Build the visual grid for the current orientation and register every key with the
+ * plugin as the host would, using NATIVE coordinates. */
+function buildDevice() {
+  const size = FsdGrid.dimensions(orientation);
+  const grid = document.getElementById('grid');
+  grid.style.gridTemplateColumns = `repeat(${size.columns}, 76px)`;
+  grid.innerHTML = '';
+  keyElements.clear();
+
+  for (let row = 0; row < size.rows; row += 1) {
+    for (let column = 0; column < size.columns; column += 1) {
+      const cell = FsdGrid.nativeCell(orientation, row, column);
+      const cellId = FsdGrid.cellId(cell);
+      const button = document.createElement('button');
+      button.className = 'key unbound';
+      button.title = `logical ${row},${column}  native ${cellId}`;
+      button.addEventListener('click', () => {
+        toPlugin({ event: 'keyDown', context: contextForCell(cellId), payload: {} });
+      });
+      grid.appendChild(button);
+      keyElements.set(cellId, button);
+    }
+  }
+
+  document.getElementById('orientation-label').textContent =
+    `${orientation} · ${size.columns} × ${size.rows}`;
+}
+
+function registerAll() {
+  contextByCell.clear();
+  for (let row = 0; row < NATIVE_ROWS; row += 1) {
+    for (let column = 0; column < NATIVE_COLUMNS; column += 1) {
+      const cellId = FsdGrid.cellId({ row, column });
+      const context = contextForCell(cellId);
+      contextByCell.set(cellId, context);
+      toPlugin({
+        event: 'willAppear',
+        context,
+        payload: { controller: 'Keypad', coordinates: { column, row } }
+      });
+    }
+  }
+  auxContexts.forEach((context) => {
+    toPlugin({ event: 'willAppear', context, payload: { controller: 'SecondaryScreen' } });
+  });
+  toPlugin({ event: 'willAppear', context: KNOB_CONTEXT, payload: { controller: 'Knob' } });
+}
+
+/* ------------------------------------------------------------------ controls */
+
+document.querySelectorAll('[data-orientation]').forEach((button) => {
+  button.addEventListener('click', () => {
+    orientation = button.dataset.orientation;
+    document.querySelectorAll('[data-orientation]').forEach((other) => {
+      other.classList.toggle('on', other.dataset.orientation === orientation);
+    });
+    buildDevice();
+    FsdPlugin.applySettings({ orientation });
+    setTimeout(refreshInfo, 120);
+  });
+});
+
+document.querySelectorAll('[data-state]').forEach((button) => {
+  button.addEventListener('click', () => {
+    fetch('/_sim/state', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: button.dataset.state
+    }).then(() => setTimeout(refreshInfo, 150));
+  });
+});
+
+document.getElementById('aux0').addEventListener('click', () => {
+  toPlugin({ event: 'keyDown', context: auxContexts[0], payload: {} });
+  setTimeout(refreshInfo, 120);
+});
+document.getElementById('aux1').addEventListener('click', () => {
+  toPlugin({ event: 'keyDown', context: auxContexts[1], payload: {} });
+  setTimeout(refreshInfo, 120);
+});
+document.getElementById('dial-left').addEventListener('click', () => {
+  toPlugin({ event: 'dialRotate', context: KNOB_CONTEXT, payload: { ticks: -1 } });
+  setTimeout(refreshInfo, 120);
+});
+document.getElementById('dial-right').addEventListener('click', () => {
+  toPlugin({ event: 'dialRotate', context: KNOB_CONTEXT, payload: { ticks: 1 } });
+  setTimeout(refreshInfo, 120);
+});
+document.getElementById('dial-press').addEventListener('click', () => {
+  toPlugin({ event: 'dialDown', context: KNOB_CONTEXT, payload: {} });
+  setTimeout(refreshInfo, 120);
+});
+
+function refreshInfo() {
+  const nav = FsdPlugin.getNavigator();
+  const state = FsdPlugin.getState();
+  const info = nav
+    ? {
+        page: nav.currentPageId(),
+        title: nav.currentPage().title,
+        offset: nav.offset,
+        pages: nav.pageCount(12),
+        canGoBack: nav.canGoBack()
+      }
+    : { page: '(no layout yet)' };
+  document.getElementById('page-info').textContent =
+    JSON.stringify({ fusion: {
+      connected: state.connected,
+      inSketch: state.inSketch,
+      tab: state.tab,
+      dialogOpen: state.dialogOpen
+    }, device: info }, null, 2);
+
+  fetch('/_sim/log')
+    .then((response) => response.json())
+    .then((data) => {
+      const lines = data.commands.slice(-14)
+        .map((entry) => (entry.action === 'text' ? `text  ${entry.text}` : `exec  ${entry.id}`));
+      document.getElementById('command-log').textContent = lines.join('\n') || 'nothing yet';
+    });
+}
+
+/* ------------------------------------------------------------------ start */
+
+document.querySelector('[data-orientation="landscape"]').classList.add('on');
+buildDevice();
+
+// Drive the plugin's own entry point exactly as the host would.
+window.connectElgatoStreamDeckSocket(
+  0,
+  'sim-plugin-uuid',
+  'registerPlugin',
+  JSON.stringify({
+    application: { platform: 'windows', version: '3.10.202' },
+    devices: [{ id: 'sim-n1', name: 'Stream Dock N1', size: { columns: 5, rows: 3 }, type: 7 }]
+  })
+);
+
+setTimeout(() => {
+  registerAll();
+  setTimeout(refreshInfo, 400);
+}, 250);
+
+setInterval(refreshInfo, 3000);
+</script>
+</body>
+</html>

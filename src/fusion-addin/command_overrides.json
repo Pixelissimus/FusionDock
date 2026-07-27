@@ -1,0 +1,16 @@
+{
+    "_comment": [
+        "Escape hatch for commands that commandDefinitions.execute() will not start on its own.",
+        "Each key is a command id; the value is one text command or a list run in order.",
+        "Text commands are UNDOCUMENTED and change between Fusion builds -- that is precisely",
+        "why they live in this file rather than in the source. If a key stops working after a",
+        "Fusion update, fix it here.",
+        "",
+        "To discover the right text command: View > Show Text Commands (Ctrl+Alt+C), switch the",
+        "palette to Py mode, run the command by hand and read what Fusion echoes.",
+        "",
+        "The entries below are UNVERIFIED against a real Fusion install and are here as format",
+        "examples. Delete any that prove wrong."
+    ],
+    "overrides": {}
+}
