@@ -1150,7 +1150,8 @@
         {
           "page": "sketch.project",
           "label": "Project",
-          "folder": true
+          "folder": true,
+          "peek": "ProjectNewCmd"
         }
       ]
     },
