@@ -16,8 +16,16 @@ Kept below because the style spec and the extraction recipe are what any future 
 should follow — the generator will not produce transparency, and its own download saves the
 baked background.
 
+**Design rule learned the hard way, worth keeping:** a menu icon must not depict any single
+operation. The first `modify-sketch` drew a filleted corner — which is exactly what Fusion's own
+Fillet icon shows, and Fillet is a command *inside the page that key opens*. Both Modify icons
+were reworked to a shared device instead: a dashed ghost of the original geometry plus an arrow,
+meaning "alter what exists" without naming a command, and contrasting with Create, which shows
+new geometry and no ghost.
+
 **Remaining judgement, only answerable by use:** whether they read clearly at 96x96 on the
-actual keys. They were checked at full size, not on the device.
+actual keys — particularly whether the dashed ghost outlines hold up at that size. They were
+reviewed at full size and as 96px mock-ups, but not yet seen on the device.
 
 <details>
 <summary>Original brief and method</summary>
@@ -116,9 +124,9 @@ All six are done. What each shows:
 | File | Subject |
 | --- | --- |
 | `create-solid` | a cube, cylinder and sphere grouped as a set — a menu, not one command |
-| `modify-solid` | a single cube with one edge filleted and a corner chamfered |
+| `modify-solid` | a solid cube with a dashed ghost cube behind it and an arrow pushing in |
 | `create-sketch` | a rectangle, circle and line overlapping, with blue endpoint handles |
-| `modify-sketch` | two lines meeting at a corner rounded by a fillet arc |
+| `modify-sketch` | a rectangle with a dashed ghost of its former size and a resize arrow |
 | `constrain-sketch` | two offset lines with a blue right-angle marker between them |
 | `view` | an isometric ViewCube with a curved arrow sweeping round it |
 
