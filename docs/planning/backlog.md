@@ -50,25 +50,68 @@ Do not guess this. Taken from Fusion's own PNGs on 2026-07-27 by pulling them of
 Note they are drawn for a **light** toolbar. They read well on the N1's dark keys only because
 they are light-coloured — worth remembering before adding anything dark.
 
+### The working recipe — follow this, it took several failed attempts to find
+
+**1. ChatGPT will not produce real transparency.** Asked directly, it bakes in a grey gradient
+and a blue glow every time, however explicitly it is told not to. Two attempts confirmed it.
+
+**2. So generate on a flat dark background instead** and key it out afterwards. Prompt rules
+that worked:
+
+> BACKGROUND: fill the entire square canvas, edge to edge, with solid flat #1C1C1E. That exact
+> colour, completely uniform. Do NOT make it transparent, do NOT add a gradient, a vignette, a
+> spotlight, a glow, a halo, a shadow or a reflection.
+> STYLE: flat vector. No outlines, no black keylines, no gloss, no bevels, no gradients, no
+> shading. Every face is one single flat colour.
+> COLOURS: isometric 3D solids. Lit faces pale sky blue #7FC9F2. Other faces white #FFFFFF and
+> very pale grey #E8E8E8. Nothing dark, nothing saturated.
+> No text, letters or numbers. Must read clearly at 96x96.
+
+**3. Extract it in the browser, not by downloading.** ChatGPT's own download saves the baked
+background, and the image URLs carry auth tokens that cannot be read out. Instead run this in
+the page console (or via the browser tool) — it fetches the image, keys the dark background out
+by luminance, and saves a real transparent PNG straight to Downloads:
+
+```js
+const imgs = Array.from(document.images).filter(i => i.naturalWidth > 300);
+const img = imgs[imgs.length - 1];                    // check this IS the newest one
+const bmp = await createImageBitmap(await (await fetch(img.currentSrc)).blob());
+const S = 256, c = document.createElement('canvas'); c.width = c.height = S;
+const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
+g.drawImage(bmp, 0, 0, S, S);
+const im = g.getImageData(0, 0, S, S), d = im.data;
+const LO = 45, HI = 85;                               // art is light, background is dark
+for (let i = 0; i < d.length; i += 4) {
+  const L = Math.max(d[i], d[i+1], d[i+2]);
+  if (L <= LO) { d[i+3] = 0; }
+  else if (L < HI) { d[i+3] = Math.round(255 * (L - LO) / (HI - LO)); }
+}
+g.putImageData(im, 0, 0);
+const a = document.createElement('a');
+a.href = c.toDataURL('image/png'); a.download = 'create-solid.png';
+document.body.appendChild(a); a.click(); a.remove();
+```
+
+The soft ramp between LO and HI keeps anti-aliased edges rather than leaving a hard dark
+fringe. Then copy the file into `static/` and run `node scripts/install.js --force`.
+
 ### Progress 2026-07-27
 
-A first candidate for **Create (solid)** was generated in ChatGPT (chat: "Toolbar Icon Design
-Request"): a cube, cylinder and sphere clustered as a set, which reads as a menu rather than a
-single command. The first attempt came back with thick black outlines, oversaturated blue and a
-gradient-shaded sphere — all three wrong against the spec above. A later render corrected them
-and is close, with some residual thin dark edging on the cube and cylinder.
+**DONE — `create-solid.png`.** A cube, cylinder and sphere grouped as a set, so it reads as a
+menu rather than one command. Generated, keyed to transparency, installed and committed. Chat:
+"Fusion 360 Icon Design".
 
-**Not downloaded.** Two attempts to save it through browser automation did not produce a file.
-The image is still in that chat. Either save it by hand, or retry.
+**Icon 2 (Modify solid) is blocked, not abandoned.** ChatGPT's image generator returned "the
+image generation step hit an error" twice in a row. Not a prompt fault — the identical rules
+had just produced icon 1 cleanly. Worth simply retrying later.
 
-**The other five were deliberately not generated.** The style is an aesthetic call that is
-Jamie's to make, and generating five more before he has approved one risks wasting credits —
-the standing rule is to test cheap first and ask before spending.
+**Still to make:** `modify-solid`, `create-sketch`, `modify-sketch`, `constrain-sketch`, `view`.
+One at a time, each checked against Fusion's real icons before moving on.
 
-**Also needs a small code change once the art exists.** The `icon` field in the layout is
-currently dead — nothing reads it. Images come from Fusion via `/icon?id=`, or from `peek`.
-Wiring `icon: "createsolid"` to `static/createsolid.png` is the last step, and it doubles as
-the fix for item 4 below.
+**The code side is already done.** The layout's `icon` field now resolves to
+`static/<name>.png` (commit d3d5cc6), with Fusion's own icons still winning wherever a command
+exists. Dropping a PNG into `static/` and running `node scripts/install.js --force` is all that
+each remaining icon needs.
 
 **Constraint:** whatever is produced ships in `static/`. Autodesk's own artwork is never
 bundled — Fusion icons are read from the local install at runtime, and that must stay true.
