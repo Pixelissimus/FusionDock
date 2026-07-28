@@ -63,6 +63,7 @@ _poll_thread = None
 _last_state_key = None
 _loaded_mtimes = {}
 _tabs_cache = []
+_panels_cache = []
 
 
 def _refresh_tabs_cache():
@@ -78,11 +79,15 @@ def _refresh_tabs_cache():
     plain data. Refreshed at startup and whenever the workspace changes, which is also when a
     previously unvisited workspace first builds its tabs.
     """
-    global _tabs_cache
+    global _tabs_cache, _panels_cache
     try:
         _tabs_cache = fsd_state.list_tabs(_ui)
     except Exception:
         _log("tab cache refresh failed: %s" % traceback.format_exc())
+    try:
+        _panels_cache = fsd_commands.list_panels(_ui)
+    except Exception:
+        _log("panel cache refresh failed: %s" % traceback.format_exc())
 
 
 def _module_status():
@@ -331,6 +336,8 @@ def run(context):
             on_command=_on_command_from_plugin,
             list_commands=lambda: fsd_commands.list_commands(_ui),
             list_tabs=lambda: _tabs_cache,
+            list_panels=lambda: _panels_cache,
+            icon_info=lambda cmd_id: fsd_commands.describe_icon(_ui, cmd_id),
             status=_module_status,
             get_icon=lambda command_id: fsd_commands.resolve_icon(_ui, command_id),
             port=port,

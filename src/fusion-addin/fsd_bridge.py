@@ -8,6 +8,8 @@ Endpoints:
     GET  /events            -> SSE stream of state objects
     GET  /commands          -> JSON list of every known Fusion command
     GET  /tabs              -> JSON list of every workspace and its ribbon tabs
+    GET  /panels            -> JSON of Fusion's own ribbon: tab -> panel -> controls
+    GET  /iconinfo?id=<id>  -> why a command's icon did or did not resolve
     GET  /icon?id=<cmdId>   -> PNG bytes for that command's icon
     POST /command           -> {"action": "execute", "id": "..."} queued for the main thread
 """
@@ -93,6 +95,16 @@ class _Handler(BaseHTTPRequestHandler):
                 self._send_json(200, {"workspaces": bridge.list_tabs()})
             except Exception as exc:
                 self._send_json(500, {"error": str(exc)})
+        elif route == "/panels":
+            try:
+                self._send_json(200, {"workspaces": bridge.list_panels()})
+            except Exception as exc:
+                self._send_json(500, {"error": str(exc)})
+        elif route == "/iconinfo":
+            try:
+                self._send_json(200, bridge.icon_info(parse_qs(parsed.query).get("id", [""])[0]))
+            except Exception as exc:
+                self._send_json(500, {"error": str(exc)})
         elif route == "/icon":
             self._send_icon(parse_qs(parsed.query).get("id", [""])[0])
         elif route == "/debug":
@@ -105,7 +117,9 @@ class _Handler(BaseHTTPRequestHandler):
             self._send_json(400, {"error": "missing id"})
             return
         try:
-            data = self.server.bridge.get_icon(cmd_id)
+            # Fusion's icon folders hold PNG in some places and SVG in others, so the type
+            # travels with the bytes -- an <img> will not render an SVG labelled image/png.
+            data, content_type = self.server.bridge.get_icon(cmd_id)
         except Exception as exc:
             self._send_json(500, {"error": str(exc)})
             return
@@ -113,7 +127,7 @@ class _Handler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "no icon"})
             return
         self.send_response(200)
-        self.send_header("Content-Type", "image/png")
+        self.send_header("Content-Type", content_type or "image/png")
         self.send_header("Content-Length", str(len(data)))
         self.send_header("Access-Control-Allow-Origin", "*")
         # Icon files only change when Fusion itself updates, and the add-in restarts with
@@ -207,7 +221,7 @@ class Bridge:
     """Owns the HTTP server thread and the set of connected SSE clients."""
 
     def __init__(self, on_command, list_commands, get_icon, port=DEFAULT_PORT, logger=None,
-                 list_tabs=None, status=None):
+                 list_tabs=None, status=None, list_panels=None, icon_info=None):
         self.on_command = on_command
         self.list_commands = list_commands
         self.get_icon = get_icon
@@ -216,6 +230,8 @@ class Bridge:
         # Reports which add-in files are actually loaded -- see _module_status in the entry
         # point. Optional so the bridge still constructs without Fusion.
         self.status = status or (lambda: {})
+        self.list_panels = list_panels or (lambda: [])
+        self.icon_info = icon_info or (lambda cmd_id: {})
         self.port = port
         self._logger = logger
         self._server = None

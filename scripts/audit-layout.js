@@ -216,6 +216,58 @@ for (const [label, targets] of seenLabels) {
   }
 }
 
+/* --------------------------------- 4b. ids the ribbon disagrees with */
+
+/*
+ * A command id existing is not proof it is the RIGHT one.
+ *
+ * Jamie found Coil on the device with no icon. `Coil` is a real command definition and passed
+ * every check here -- but Fusion's own ribbon calls `PrimitiveCoil`, and `Coil` is a legacy
+ * definition with no artwork attached. Same story for Insert Mesh and Centre of Mass.
+ *
+ * So: if a key's id is absent from the ribbon while a ribbon control carries the same display
+ * name under a DIFFERENT id, that is almost certainly the wrong id. An id simply absent from
+ * the ribbon is not flagged -- plenty of legitimate commands live in palettes and menus rather
+ * than on the toolbar.
+ */
+const PANEL_DUMP = path.join(__dirname, '..', 'docs', 'research', 'panel-dump.json');
+if (fs.existsSync(PANEL_DUMP)) {
+  const ribbonById = new Set();
+  const ribbonByName = new Map();
+  const walk = (control) => {
+    if (control.commandId) {
+      ribbonById.add(control.commandId);
+      const name = (control.name || '').trim();
+      if (name) {
+        if (!ribbonByName.has(name)) { ribbonByName.set(name, new Set()); }
+        ribbonByName.get(name).add(control.commandId);
+      }
+    }
+    (control.children || []).forEach(walk);
+  };
+  const dump = JSON.parse(fs.readFileSync(PANEL_DUMP, 'utf8'));
+  for (const workspace of dump.workspaces || []) {
+    for (const tab of workspace.tabs || []) {
+      for (const panel of tab.panels || []) { (panel.controls || []).forEach(walk); }
+    }
+  }
+
+  for (const [pageId, page] of Object.entries(pages)) {
+    for (const key of page.keys || []) {
+      if (!key.cmd || ribbonById.has(key.cmd)) { continue; }
+      const name = (key.match || '').trim();
+      const alternatives = name && ribbonByName.get(name);
+      if (alternatives && !alternatives.has(key.cmd)) {
+        err(`"${pageId}" key "${key.label}" uses ${key.cmd}, but Fusion's ribbon calls `
+          + `"${name}" ${[...alternatives].join(' / ')} -- almost certainly the wrong id`);
+      }
+    }
+  }
+} else {
+  note('docs/research/panel-dump.json is absent, so command ids were not checked against '
+    + "Fusion's own ribbon. Re-dump with GET /panels against a running Fusion.");
+}
+
 /* ------------------------------------------------------- 5. rules */
 
 const seenRules = [];

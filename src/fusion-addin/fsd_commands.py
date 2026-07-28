@@ -252,7 +252,17 @@ def execute_text_sequence(app, commands):
 
 
 def _best_icon_file(folder):
-    """Largest size-named PNG in an icon folder, or any PNG if none are size-named."""
+    """Best icon in a folder: largest size-named PNG, else largest SVG.
+
+    PNG is preferred because it is what most of Fusion's own folders hold and it composites
+    onto the keys with no surprises. But a good number of folders are SVG ONLY -- Appearance,
+    Physical Material and the whole sheet-metal set among them -- and looking for PNG alone
+    made those commands appear to have no icon at all. Measured on 2026-07-28 via /iconinfo:
+    Appearance's folder holds seven files and every one is .svg.
+
+    That single omission accounted for eight of the ten text-only keys. The ninth and tenth,
+    Coil and New, genuinely have no resourceFolder at all -- nothing to find.
+    """
     try:
         names = os.listdir(folder)
     except Exception:
@@ -260,13 +270,30 @@ def _best_icon_file(folder):
 
     best_path, best_area = None, -1
     fallback = None
+    svg_path, svg_area = None, -1
     for name in names:
-        if not name.lower().endswith(".png"):
+        lowered_name = name.lower()
+        if lowered_name.endswith(".svg"):
+            # Same dark-variant rule as below; sized SVGs win over unsized ones.
+            if "_dark" in lowered_name or "-dark" in lowered_name:
+                continue
+            match = _SIZE_PATTERN.search(name)
+            area = int(match.group(1)) * int(match.group(2)) if match else 0
+            if area > svg_area:
+                svg_path, svg_area = os.path.join(folder, name), area
+            continue
+        if not lowered_name.endswith(".png"):
             continue
         # Fusion ships light and dark variants in the same folder. The device keys are dark,
-        # so the standard (light-on-dark) icon reads correctly; skip explicit dark variants
-        # which are drawn for light backgrounds.
-        if "_dark" in name.lower():
+        # so the standard icon reads correctly; skip explicit dark variants, which are drawn
+        # FOR light backgrounds and disappear on ours.
+        #
+        # Fusion spells it with a HYPHEN -- 16x16-dark.png, 32x32-dark@2x.png -- which the
+        # original underscore test never matched. Confirmed by listing
+        # Fusion/UI/FusionUI/Resources/solid/Coil on disk, 2026-07-28. Both spellings are
+        # accepted now rather than trading one guess for another.
+        lowered = name.lower()
+        if "_dark" in lowered or "-dark" in lowered:
             continue
         path = os.path.join(folder, name)
         match = _SIZE_PATTERN.search(name)
@@ -276,15 +303,20 @@ def _best_icon_file(folder):
                 best_path, best_area = path, area
         elif fallback is None:
             fallback = path
-    return best_path or fallback
+    return best_path or fallback or svg_path
 
 
 def resolve_icon(ui, command_id):
-    """PNG bytes for a command's icon, or None. Cached for the session."""
+    """(bytes, content_type) for a command's icon, or (None, None). Cached for the session.
+
+    The content type travels with the bytes because Fusion's icon folders are a mix of PNG and
+    SVG, and an <img> in the plugin will not render an SVG served as image/png.
+    """
     if command_id in _icon_cache:
         return _icon_cache[command_id]
 
     data = None
+    content_type = None
     try:
         definition = ui.commandDefinitions.itemById(command_id)
         folder = definition.resourceFolder if definition else None
@@ -300,11 +332,144 @@ def resolve_icon(ui, command_id):
             try:
                 with open(icon_file, "rb") as handle:
                     data = handle.read()
+                content_type = ("image/svg+xml" if icon_file.lower().endswith(".svg")
+                                else "image/png")
             except Exception:
                 data = None
+                content_type = None
 
-    _icon_cache[command_id] = data
-    return data
+    _icon_cache[command_id] = (data, content_type)
+    return _icon_cache[command_id]
+
+
+def describe_icon(ui, command_id):
+    """Why a command's icon did or did not resolve. Diagnostic only.
+
+    Ten keys draw as text because /icon returns 404 for them, while command-dump.json says
+    they have an icon. The files are demonstrably on disk -- Fusion's own Coil folder holds
+    16x16.png and 32x32.png -- so the fault is in the resolution here, not in Fusion. This
+    reports each step so the answer comes from the running add-in rather than from reasoning
+    about it.
+    """
+    info = {"id": command_id}
+    try:
+        definition = ui.commandDefinitions.itemById(command_id)
+    except Exception as exc:
+        info["error"] = "lookup failed: %s" % exc
+        return info
+    if not definition:
+        info["error"] = "no such command definition"
+        return info
+
+    try:
+        info["resourceFolder"] = definition.resourceFolder
+    except Exception as exc:
+        info["resourceFolder"] = None
+        info["resourceFolderError"] = str(exc)
+        return info
+
+    folder = info.get("resourceFolder")
+    if not folder:
+        info["result"] = "definition reports no resource folder"
+        return info
+
+    info["wasAbsolute"] = os.path.isabs(folder)
+    if not os.path.isabs(folder):
+        folder = os.path.join(deploy_folder(), folder)
+    info["resolvedPath"] = folder
+    info["exists"] = os.path.isdir(folder)
+    if info["exists"]:
+        try:
+            info["files"] = sorted(os.listdir(folder))
+        except Exception as exc:
+            info["files"] = "listdir failed: %s" % exc
+    info["chosen"] = _best_icon_file(folder)
+    return info
+
+
+def list_panels(ui):
+    """Fusion's own ribbon structure: workspace -> tab -> panel -> controls, in Fusion's order.
+
+    MAIN THREAD ONLY -- the caller marshals this.
+
+    Which command belongs in the Create folder and which in Modify has been my judgement up to
+    now, and Jamie found the cost of that on the device: our Create folder held the primitives
+    nobody uses and omitted Revolve, Sweep, Loft and Mirror, all of which Fusion itself puts
+    there. This reads the real answer instead: what Fusion groups together, in the order it
+    shows them, and which controls it promotes to the top level.
+    """
+    workspaces = []
+    try:
+        items = ui.workspaces
+    except Exception:
+        return workspaces
+
+    for workspace in items:
+        ws_id = _safe(lambda: workspace.id)
+        # Only the design workspace is of interest, and walking all 38 is slow enough to be
+        # felt on the main thread.
+        if ws_id not in ("FusionSolidEnvironment", "TSplineEnvironment"):
+            continue
+        entry = {"id": ws_id, "name": _safe(lambda: workspace.name), "tabs": []}
+        try:
+            for tab in workspace.toolbarTabs:
+                tab_entry = {
+                    "id": _safe(lambda: tab.id),
+                    "name": _safe(lambda: tab.name),
+                    "panels": [],
+                }
+                try:
+                    for panel in tab.toolbarPanels:
+                        panel_entry = {
+                            "id": _safe(lambda: panel.id),
+                            "name": _safe(lambda: panel.name),
+                            "controls": [],
+                        }
+                        try:
+                            for control in panel.controls:
+                                panel_entry["controls"].append(_describe_control(control))
+                        except Exception:
+                            pass
+                        tab_entry["panels"].append(panel_entry)
+                except Exception:
+                    pass
+                entry["tabs"].append(tab_entry)
+        except Exception:
+            pass
+        workspaces.append(entry)
+    return workspaces
+
+
+def _describe_control(control):
+    """One ribbon control. Drop-downs carry their own children, which is where Fusion hides
+    most of what we want -- Revolve and Sweep live inside the Create drop-down, not beside it.
+    """
+    item = {
+        "id": _safe(lambda: control.id),
+        "isPromoted": _safe(lambda: control.isPromoted),
+        "isVisible": _safe(lambda: control.isVisible),
+        "objectType": _safe(lambda: control.objectType),
+    }
+    definition = _safe(lambda: control.commandDefinition)
+    if definition is not None:
+        item["commandId"] = _safe(lambda: definition.id)
+        item["name"] = _safe(lambda: definition.name)
+    children = _safe(lambda: control.controls)
+    if children is not None:
+        item["children"] = []
+        try:
+            for child in children:
+                item["children"].append(_describe_control(child))
+        except Exception:
+            pass
+    return item
+
+
+def _safe(fn, default=None):
+    try:
+        return fn()
+    except Exception:
+        return default
 
 
 def list_commands(ui):

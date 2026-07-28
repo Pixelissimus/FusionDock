@@ -216,7 +216,7 @@
           "tabName": "MESH",
           "workspace": "FusionSolidEnvironment",
           "label": "Mesh",
-          "peek": "ParaMeshInsertCommand"
+          "peek": "ParaMeshInsertAlignCommand"
         },
         {
           "tab": "SheetMetalTab",
@@ -412,14 +412,14 @@
           "match": "Thread"
         },
         {
-          "cmd": "FusionDraftCommand",
-          "label": "Draft",
-          "match": "Draft"
-        },
-        {
           "cmd": "FusionSplitBodyCommand",
           "label": "Split Body",
           "match": "Split Body"
+        },
+        {
+          "cmd": "SurfaceSculpt",
+          "label": "Boundary Fill",
+          "match": "Boundary Fill"
         },
         {
           "cmd": "MeasureCommand",
@@ -427,15 +427,15 @@
           "match": "Measure"
         },
         {
+          "cmd": "TSplineBaseFeatureCreationCommand",
+          "label": "Create Form",
+          "match": "Create Form"
+        },
+        {
           "page": "solid.construct",
           "label": "Construct",
           "folder": true,
           "peek": "ConstructionPlaneOffsetFromPlaneCommand"
-        },
-        {
-          "cmd": "TSplineBaseFeatureCreationCommand",
-          "label": "Create Form",
-          "match": "Create Form"
         },
         {
           "page": "home",
@@ -459,6 +459,21 @@
     "solid.create": {
       "title": "Create",
       "keys": [
+        {
+          "cmd": "Revolve",
+          "label": "Revolve",
+          "match": "Revolve"
+        },
+        {
+          "cmd": "Sweep",
+          "label": "Sweep",
+          "match": "Sweep"
+        },
+        {
+          "cmd": "SolidLoft",
+          "label": "Loft",
+          "match": "Loft"
+        },
         {
           "cmd": "FusionRibCommand",
           "label": "Rib",
@@ -495,7 +510,7 @@
           "match": "Torus"
         },
         {
-          "cmd": "Coil",
+          "cmd": "PrimitiveCoil",
           "label": "Coil",
           "match": "Coil"
         },
@@ -503,6 +518,16 @@
           "cmd": "PrimitivePipe",
           "label": "Pipe",
           "match": "Pipe"
+        },
+        {
+          "cmd": "MirrorCommand",
+          "label": "Mirror",
+          "match": "Mirror"
+        },
+        {
+          "cmd": "FusionSurfaceThickenCommand",
+          "label": "Thicken",
+          "match": "Thicken"
         },
         {
           "nav": "back",
@@ -514,6 +539,11 @@
     "solid.modify": {
       "title": "Modify",
       "keys": [
+        {
+          "cmd": "FusionDraftCommand",
+          "label": "Draft",
+          "match": "Draft"
+        },
         {
           "cmd": "ModifyScale",
           "label": "Scale",
@@ -535,19 +565,29 @@
           "match": "Split Face"
         },
         {
+          "cmd": "FusionSplitBodyCommand",
+          "label": "Split Body",
+          "match": "Split Body"
+        },
+        {
+          "cmd": "FusionPartingLineSplitCmd",
+          "label": "Silhouette",
+          "match": "Silhouette Split"
+        },
+        {
           "cmd": "AlignCmd",
           "label": "Align",
           "match": "Align"
         },
         {
-          "cmd": "AppearanceCommand",
-          "label": "Appearance",
-          "match": "Appearance"
-        },
-        {
           "cmd": "PhysicalMaterialCommand",
           "label": "Material",
           "match": "Physical Material"
+        },
+        {
+          "cmd": "AppearanceCommand",
+          "label": "Appearance",
+          "match": "Appearance"
         },
         {
           "cmd": "ChangeParameterCommand",
@@ -1467,7 +1507,7 @@
       "title": "Mesh",
       "keys": [
         {
-          "cmd": "ParaMeshInsertCommand",
+          "cmd": "ParaMeshInsertAlignCommand",
           "label": "Insert Mesh",
           "match": "Insert Mesh"
         },
@@ -1976,7 +2016,7 @@
           "match": "Interference"
         },
         {
-          "cmd": "CenterOfMassCommand",
+          "cmd": "FusionCenterOfMassCommand",
           "label": "Centre Mass",
           "match": "Center of Mass"
         },
