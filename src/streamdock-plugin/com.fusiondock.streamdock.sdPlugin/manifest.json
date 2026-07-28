@@ -1,17 +1,17 @@
 {
     "SDKVersion": 1,
-    "Name": "Fusion 360",
-    "Version": "0.1.0",
-    "Author": "fusion-360-stream-dock",
+    "Name": "Fusion 360 Stream Dock",
+    "Version": "1.0.0",
+    "Author": "Functional 3D UK",
     "Description": "Context-aware control surface for Autodesk Fusion 360. Keys follow the workspace, environment and sketch mode you are actually in.",
     "Category": "Fusion 360",
     "CategoryIcon": "static/category.png",
     "Icon": "static/plugin.png",
-    "URL": "https://github.com/",
+    "URL": "https://functional3duk.co.uk/",
     "CodePath": "plugin/index.html",
     "PropertyInspectorPath": "propertyInspector/index.html",
     "Software": {
-        "MinimumVersion": "2.9"
+        "MinimumVersion": "3.10.200.0408"
     },
     "OS": [
         {

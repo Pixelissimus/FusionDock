@@ -69,9 +69,19 @@
                 status.innerHTML = '<span class="ok">Connected.</span> Fusion add-in is running.';
             })
             .catch(function () {
-                status.innerHTML = '<span class="bad">Not connected.</span> '
-                    + 'Start Fusion 360, and check the add-in is running under '
-                    + 'Utilities &rsaquo; Scripts and Add-Ins.';
+                // The bridge going unanswered means one of two things, and the plugin cannot
+                // tell them apart -- Fusion is closed, or the add-in was never installed.
+                // Both are covered here rather than assuming the user already got past setup.
+                status.innerHTML = '<span class="bad">Not connected.</span>'
+                    + '<div class="hint" style="margin-top:8px">'
+                    + '<strong>If you have not set up the Fusion half yet:</strong> this plugin '
+                    + 'is one of two pieces. Double-click <code>install-fusion-addin.bat</code> '
+                    + 'in this plugin\'s folder, then restart Fusion 360.'
+                    + '<br><br><strong>If you have:</strong> start Fusion 360, and check the '
+                    + 'add-in is Running under Utilities &rsaquo; Scripts and Add-Ins. Fusion '
+                    + 'only looks for add-ins when it starts, so a fresh install needs a '
+                    + 'restart of Fusion, not just of this software.'
+                    + '</div>';
             });
     }
 

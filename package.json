@@ -8,7 +8,8 @@
     "simulator": "node tests/fake-bridge.js",
     "icons": "node scripts/make-icons.js && node scripts/draw-menu-icons.js && node scripts/check-icons.js",
     "install-plugin": "node scripts/install.js",
-    "audit": "node scripts/audit-layout.js"
+    "audit": "node scripts/audit-layout.js",
+    "package": "node scripts/package.js"
   },
   "engines": {
     "node": ">=20"

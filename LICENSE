@@ -1,0 +1,73 @@
+Fusion 360 Stream Dock
+Copyright (c) 2026 Jamie Bell, trading as Functional 3D UK. All rights reserved.
+
+This is a proprietary licence. It is deliberately NOT an open-source licence.
+
+
+1. WHAT YOU MAY DO
+
+You may download, install and use this software, free of charge, on any number of
+machines you own or control, for personal or commercial work.
+
+You may configure it for your own use. Specifically, you may edit the layout file
+(layouts/default.json), config.json and command_overrides.json to change which
+commands appear on which keys, and you may keep and back up those edited files.
+Doing so is the intended way to use this software, not a modification of it.
+
+You may share screenshots, photographs and videos of the software in use, and write
+about it, without asking.
+
+
+2. WHAT YOU MAY NOT DO WITHOUT WRITTEN PERMISSION
+
+Without prior written permission from Jamie Bell, you may not:
+
+  a. modify, adapt, translate or create derivative works from the source code;
+  b. redistribute this software, in whole or in part, modified or unmodified,
+     including on any plugin marketplace, app store, file-sharing site or repository;
+  c. sublicense, rent, lease, sell or otherwise commercially exploit it;
+  d. remove or alter this notice, the copyright notices, or the attribution in the
+     plugin manifest.
+
+Permission is often given. Ask: jamie@functional3duk.co.uk
+
+
+3. AUTODESK ARTWORK IS NOT INCLUDED AND IS NOT MINE TO LICENCE
+
+This software displays Autodesk's own command icons by reading them from the copy of
+Fusion 360 already installed on the user's machine, at the moment they are needed. No
+Autodesk artwork is bundled with, distributed with, or covered by this licence.
+
+If you obtain permission under section 2 to redistribute this software, that permission
+does not extend to Autodesk's artwork, trademarks or software, and you must keep the
+runtime-reading behaviour intact rather than bundling their files.
+
+"Autodesk" and "Fusion 360" are trademarks of Autodesk, Inc. This software is not
+affiliated with, endorsed by, or supported by Autodesk. "Stream Dock" and "VSD" are
+trademarks of their respective owners, and this software is likewise unaffiliated.
+
+
+4. NO WARRANTY
+
+THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THIS SOFTWARE OR THE USE
+OR OTHER DEALINGS IN THIS SOFTWARE.
+
+It drives a CAD application. Check what it is about to do before you let it do it, and
+save your work.
+
+
+5. GOVERNING LAW
+
+This licence is governed by the laws of England and Wales.
+
+
+---
+
+Not legal advice. This licence was drafted by an AI assistant to express a stated
+intention ("nobody modifies it without my permission") in the usual shape such licences
+take. It has not been reviewed by a solicitor. If real money or a real dispute is ever
+attached to this software, have one read it.
