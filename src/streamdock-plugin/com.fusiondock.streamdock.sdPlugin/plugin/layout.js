@@ -55,10 +55,33 @@
     this.memory = {};
   }
 
+  /*
+   * Pages marked "global" in the layout are doors, not sub-pages: Tabs and View appear on every
+   * context and belong to none of them.
+   *
+   * They must never enter the per-context memory. Reported on hardware 2026-07-28: press Tabs
+   * while in Solid, switch to Surface and back, and the device returns to the tabs page instead
+   * of to Solid -- the memory had faithfully recorded "you were on the tabs page" and restored
+   * it. Remembering which FOLDER you were in is the feature; remembering that you had a door
+   * open is not.
+   */
+  Navigator.prototype._isGlobal = function (pageId) {
+    var page = this.layout.pages[pageId];
+    return Boolean(page && page.global);
+  };
+
   Navigator.prototype._save = function () {
-    if (this.rootPage) {
-      this.memory[this.rootPage] = { stack: this.stack.slice(), offset: this.offset };
+    if (!this.rootPage) {
+      return;
     }
+    var kept = this.stack.filter(function (id) {
+      return !this._isGlobal(id);
+    }, this);
+    this.memory[this.rootPage] = {
+      stack: kept,
+      // A remembered scroll offset only means anything for the page it was taken on.
+      offset: kept.length === this.stack.length ? this.offset : 0
+    };
   };
 
   /* Returns true if the visible page changed and a repaint is needed. */
@@ -82,6 +105,29 @@
       this.offset = 0;
     }
     return true;
+  };
+
+  /*
+   * Close any door left open on top of the stack.
+   *
+   * Excluding globals from the memory was only half the fix. Nothing popped the door off the
+   * LIVE stack, and applyState returns early when the resolved root has not changed -- so
+   * pressing Solid on the tab picker while already in Solid left the device sitting on the
+   * picker with the key looking dead. Worse from inside a sketch, where the inSketch rule
+   * keeps the root fixed no matter which ribbon tab Fusion moves to.
+   *
+   * Returns true if anything was closed.
+   */
+  Navigator.prototype.closeDoors = function () {
+    var closed = false;
+    while (this.stack.length && this._isGlobal(this.stack[this.stack.length - 1])) {
+      this.stack.pop();
+      closed = true;
+    }
+    if (closed) {
+      this.offset = 0;
+    }
+    return closed;
   };
 
   Navigator.prototype.currentPageId = function () {

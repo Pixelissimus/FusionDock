@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "_readme": [
     "Layouts are authored ONCE as ordered key lists. The grid mapping for landscape (5x3)",
     "and portrait (3x5) is derived from this order, so nothing here is duplicated per",
@@ -10,10 +10,19 @@
     "running Fusion -- ids are install-derived, never hand-invented).",
     "",
     "page = open a sub-page. view = set a viewport property (Fusion has no command for these).",
-    "text = raw text command. peek = borrow another command's icon for a folder key.",
+    "tab = switch Fusion's workspace/ribbon tab (no command for these either). text = raw text",
+    "command. peek = borrow another command's icon for a folder or tab key.",
     "",
-    "All 15 keys are context keys. Globals (Undo, Redo, View, Back) live in \"aux\" below, on",
-    "the two side buttons and the dial."
+    "SLOTS 13, 14 AND 15 ARE A FIXED REGION. Every context page ends with the same three keys:",
+    "Tabs (the home/tab picker), View, and More (page 2 of this context) or Page 1 on a page-2.",
+    "They are three doors, not three commands, and they are the last three entries of every",
+    "page list because 13-15 is the only block that reads coherently in BOTH orientations --",
+    "the bottom row in portrait, the bottom-right cluster beside the dial in landscape.",
+    "",
+    "All 15 keys are context keys. Globals (Undo, Redo) live in \"aux\" below, on the two side",
+    "buttons and the dial.",
+    "",
+    "A page marked \"global\": true is a door, not a sub-page -- it appears on every context and belongs to none. Global pages are excluded from the per-context memory, so returning to a context restores the folder you were in, never the fact that you had Tabs or View open."
   ],
   "aux": {
     "_note": "Undo and Redo sit on the two discrete side buttons, NOT on the dial: an encoder is easy to nudge while pressing it, and a stray rotation that silently undoes work is far worse than one that merely changes the camera. The dial gets the harmless job.",
@@ -58,6 +67,18 @@
       }
     }
   },
+  "_rules_note": [
+    "Ordered most specific first; the first match wins. Every tab id here was read off the",
+    "running Fusion via GET /tabs on 2026-07-28 and is recorded in docs/research/tab-dump.json.",
+    "",
+    "Rules match on tab ID, never on tabName. The display names are not consistently cased --",
+    "ParaMeshOuterTab reports \"Mesh\", not \"MESH\" -- and they would change under a localised",
+    "Fusion. tabName survives only as a fallback on the tab-switch KEYS, where activate_tab tries",
+    "the id first.",
+    "",
+    "Form is matched on workspace, not tab: entering Create Form moves Fusion into its own",
+    "TSplineEnvironment workspace, confirmed live on 2026-07-28."
+  ],
   "rules": [
     {
       "when": {
@@ -77,9 +98,22 @@
     },
     {
       "when": {
+        "connected": true,
+        "workspace": null
+      },
+      "page": "dashboard"
+    },
+    {
+      "when": {
         "inSketch": true
       },
       "page": "sketch"
+    },
+    {
+      "when": {
+        "workspace": "TSplineEnvironment"
+      },
+      "page": "form"
     },
     {
       "when": {
@@ -87,6 +121,12 @@
         "tab": "SurfaceTab"
       },
       "page": "surface"
+    },
+    {
+      "when": {
+        "tab": "ParaMeshBaseFeatureTab"
+      },
+      "page": "mesh.direct"
     },
     {
       "when": {
@@ -101,6 +141,20 @@
         "tab": "SheetMetalTab"
       },
       "page": "sheetmetal"
+    },
+    {
+      "when": {
+        "workspace": "FusionSolidEnvironment",
+        "tab": "PlasticTab"
+      },
+      "page": "plastic"
+    },
+    {
+      "when": {
+        "workspace": "FusionSolidEnvironment",
+        "tab": "ToolsTab"
+      },
+      "page": "utilities"
     },
     {
       "when": {
@@ -123,9 +177,73 @@
         }
       ]
     },
+    "dashboard": {
+      "title": "No design open",
+      "_note": "Fusion's start screen. Jamie on 2026-07-28: 'realistically, from the dashboard, you can't do any of the other functions'. Correct -- Sketch, Component, Measure, every tab key and every modelling command need a design open. Matched on workspace being null, NOT on hasDesign: read live off Jamie's Fusion while sitting on that screen, it reports workspace null but hasDesign TRUE, because an Untitled document exists behind the start screen. The first version of this rule used hasDesign and could never fire.",
+      "keys": [
+        {
+          "cmd": "NewDocumentCommand",
+          "label": "New",
+          "match": "New..."
+        },
+        {
+          "cmd": "OpenDocumentCommand",
+          "label": "Open",
+          "match": "Open..."
+        }
+      ]
+    },
     "home": {
       "title": "Fusion",
+      "_note": "The tab picker, and what the fixed Tabs key opens from anywhere. Deliberately has no fixed region of its own: this IS the navigation page, so a Tabs key here would point at itself and a More key would have nowhere to go. Row 1 is the five modelling tabs, row 2 the two remaining tabs plus the document actions, row 3 the rest.",
       "keys": [
+        {
+          "tab": "SolidTab",
+          "tabName": "SOLID",
+          "workspace": "FusionSolidEnvironment",
+          "label": "Solid",
+          "peek": "Extrude"
+        },
+        {
+          "tab": "SurfaceTab",
+          "tabName": "SURFACE",
+          "workspace": "FusionSolidEnvironment",
+          "label": "Surface",
+          "peek": "FusionSurfacePatchCommand"
+        },
+        {
+          "tab": "ParaMeshOuterTab",
+          "tabName": "MESH",
+          "workspace": "FusionSolidEnvironment",
+          "label": "Mesh",
+          "peek": "ParaMeshInsertCommand"
+        },
+        {
+          "tab": "SheetMetalTab",
+          "tabName": "SHEET METAL",
+          "workspace": "FusionSolidEnvironment",
+          "label": "Sheet Metal",
+          "peek": "FusionSheetMetalFlangeCommand"
+        },
+        {
+          "tabName": "PLASTIC",
+          "workspace": "FusionSolidEnvironment",
+          "label": "Plastic",
+          "peek": "FusionRibCommand",
+          "tab": "PlasticTab"
+        },
+        {
+          "cmd": "TSplineBaseFeatureCreationCommand",
+          "label": "Form",
+          "match": "Create Form"
+        },
+        {
+          "tabName": "UTILITIES",
+          "workspace": "FusionSolidEnvironment",
+          "label": "Utilities",
+          "peek": "MeasureCommand",
+          "tab": "ToolsTab"
+        },
         {
           "cmd": "SketchCreate",
           "label": "Sketch",
@@ -139,7 +257,7 @@
         {
           "cmd": "NewDocumentCommand",
           "label": "New",
-          "match": "New Design"
+          "match": "New..."
         },
         {
           "cmd": "PLM360SaveCommand",
@@ -147,12 +265,28 @@
           "match": "Save"
         },
         {
+          "cmd": "OpenDocumentCommand",
+          "label": "Open",
+          "match": "Open..."
+        },
+        {
+          "cmd": "MeasureCommand",
+          "label": "Measure",
+          "match": "Measure"
+        },
+        {
+          "cmd": "ChangeParameterCommand",
+          "label": "Parameters",
+          "match": "Change Parameters"
+        },
+        {
           "page": "view",
           "label": "View",
           "icon": "view",
           "folder": true
         }
-      ]
+      ],
+      "global": true
     },
     "solid": {
       "title": "Solid",
@@ -163,24 +297,19 @@
           "match": "Create Sketch"
         },
         {
-          "cmd": "FusionCreateNewComponentCommand",
-          "label": "Component",
-          "match": "New Component"
-        },
-        {
           "cmd": "Extrude",
           "label": "Extrude",
           "match": "Extrude"
         },
         {
-          "cmd": "Revolve",
-          "label": "Revolve",
-          "match": "Revolve"
-        },
-        {
           "cmd": "FusionPressPullCommand",
           "label": "Press Pull",
           "match": "Press Pull"
+        },
+        {
+          "cmd": "FusionHoleCommand",
+          "label": "Hole",
+          "match": "Hole"
         },
         {
           "cmd": "FusionFilletEdgesCommand",
@@ -198,9 +327,19 @@
           "match": "Shell"
         },
         {
-          "cmd": "FusionHoleCommand",
-          "label": "Hole",
-          "match": "Hole"
+          "cmd": "FusionMoveCommand",
+          "label": "Move",
+          "match": "Move/Copy"
+        },
+        {
+          "cmd": "FusionCombineCommand",
+          "label": "Combine",
+          "match": "Combine"
+        },
+        {
+          "cmd": "PatternRectangular",
+          "label": "Rect Pattern",
+          "match": "Rectangular Pattern"
         },
         {
           "page": "solid.create",
@@ -215,22 +354,33 @@
           "folder": true
         },
         {
-          "page": "solid.construct",
-          "label": "Construct",
-          "folder": true,
-          "peek": "ConstructionPlaneOffsetFromPlaneCommand"
+          "page": "home",
+          "label": "Tabs",
+          "icon": "tabs",
+          "folder": true
         },
         {
           "page": "view",
           "label": "View",
-          "folder": true,
-          "icon": "view"
+          "icon": "view",
+          "folder": true
+        },
+        {
+          "page": "solid.p2",
+          "label": "More",
+          "icon": "more",
+          "folder": true
         }
       ]
     },
-    "solid.create": {
-      "title": "Create",
+    "solid.p2": {
+      "title": "Solid 2",
       "keys": [
+        {
+          "cmd": "Revolve",
+          "label": "Revolve",
+          "match": "Revolve"
+        },
         {
           "cmd": "Sweep",
           "label": "Sweep",
@@ -241,6 +391,74 @@
           "label": "Loft",
           "match": "Loft"
         },
+        {
+          "cmd": "MirrorCommand",
+          "label": "Mirror",
+          "match": "Mirror"
+        },
+        {
+          "cmd": "PatternCircular",
+          "label": "Circ Pattern",
+          "match": "Circular Pattern"
+        },
+        {
+          "cmd": "FusionCreateNewComponentCommand",
+          "label": "Component",
+          "match": "New Component"
+        },
+        {
+          "cmd": "FusionThreadCommand",
+          "label": "Thread",
+          "match": "Thread"
+        },
+        {
+          "cmd": "FusionDraftCommand",
+          "label": "Draft",
+          "match": "Draft"
+        },
+        {
+          "cmd": "FusionSplitBodyCommand",
+          "label": "Split Body",
+          "match": "Split Body"
+        },
+        {
+          "cmd": "MeasureCommand",
+          "label": "Measure",
+          "match": "Measure"
+        },
+        {
+          "page": "solid.construct",
+          "label": "Construct",
+          "folder": true,
+          "peek": "ConstructionPlaneOffsetFromPlaneCommand"
+        },
+        {
+          "cmd": "TSplineBaseFeatureCreationCommand",
+          "label": "Create Form",
+          "match": "Create Form"
+        },
+        {
+          "page": "home",
+          "label": "Tabs",
+          "icon": "tabs",
+          "folder": true
+        },
+        {
+          "page": "view",
+          "label": "View",
+          "icon": "view",
+          "folder": true
+        },
+        {
+          "nav": "back",
+          "label": "Page 1",
+          "icon": "more"
+        }
+      ]
+    },
+    "solid.create": {
+      "title": "Create",
+      "keys": [
         {
           "cmd": "FusionRibCommand",
           "label": "Rib",
@@ -255,11 +473,6 @@
           "cmd": "EmbossCmd",
           "label": "Emboss",
           "match": "Emboss"
-        },
-        {
-          "cmd": "FusionThreadCommand",
-          "label": "Thread",
-          "match": "Thread"
         },
         {
           "cmd": "PrimitiveBox",
@@ -290,6 +503,11 @@
           "cmd": "PrimitivePipe",
           "label": "Pipe",
           "match": "Pipe"
+        },
+        {
+          "nav": "back",
+          "label": "Back",
+          "icon": "back"
         }
       ]
     },
@@ -297,19 +515,9 @@
       "title": "Modify",
       "keys": [
         {
-          "cmd": "FusionDraftCommand",
-          "label": "Draft",
-          "match": "Draft"
-        },
-        {
           "cmd": "ModifyScale",
           "label": "Scale",
           "match": "Scale"
-        },
-        {
-          "cmd": "FusionCombineCommand",
-          "label": "Combine",
-          "match": "Combine"
         },
         {
           "cmd": "FusionOffsetFacesCommand",
@@ -327,16 +535,6 @@
           "match": "Split Face"
         },
         {
-          "cmd": "FusionSplitBodyCommand",
-          "label": "Split Body",
-          "match": "Split Body"
-        },
-        {
-          "cmd": "FusionMoveCommand",
-          "label": "Move",
-          "match": "Move/Copy"
-        },
-        {
           "cmd": "AlignCmd",
           "label": "Align",
           "match": "Align"
@@ -352,9 +550,19 @@
           "match": "Physical Material"
         },
         {
+          "cmd": "ChangeParameterCommand",
+          "label": "Parameters",
+          "match": "Change Parameters"
+        },
+        {
           "cmd": "FusionComputeAllCommand",
           "label": "Compute All",
           "match": "Compute All"
+        },
+        {
+          "nav": "back",
+          "label": "Back",
+          "icon": "back"
         }
       ]
     },
@@ -408,14 +616,24 @@
         },
         {
           "cmd": "ConstructionPointFromThreePlanesCommand",
-          "label": "Point 3 Planes",
+          "label": "Point 3Pl",
           "match": "Point Through Three Planes"
+        },
+        {
+          "nav": "back",
+          "label": "Back",
+          "icon": "back"
         }
       ]
     },
     "sketch": {
       "title": "Sketch",
       "keys": [
+        {
+          "cmd": "SketchStop",
+          "label": "Finish Sketch",
+          "match": "Finish Sketch"
+        },
         {
           "cmd": "DrawPolyline",
           "label": "Line",
@@ -440,6 +658,67 @@
           "folder": true
         },
         {
+          "cmd": "SketchDimension",
+          "label": "Dimension",
+          "match": "Sketch Dimension"
+        },
+        {
+          "cmd": "TrimSketchCmd",
+          "label": "Trim",
+          "match": "Trim"
+        },
+        {
+          "cmd": "Offset",
+          "label": "Offset",
+          "match": "Offset"
+        },
+        {
+          "cmd": "ProjectNewCmd",
+          "label": "Project",
+          "match": "Project"
+        },
+        {
+          "page": "sketch.constrain",
+          "label": "Constrain",
+          "folder": true,
+          "icon": "constrain-sketch"
+        },
+        {
+          "page": "sketch.create",
+          "label": "Create",
+          "folder": true,
+          "icon": "create-sketch"
+        },
+        {
+          "page": "sketch.modify",
+          "label": "Modify",
+          "folder": true,
+          "icon": "modify-sketch"
+        },
+        {
+          "page": "home",
+          "label": "Tabs",
+          "icon": "tabs",
+          "folder": true
+        },
+        {
+          "page": "view",
+          "label": "View",
+          "icon": "view",
+          "folder": true
+        },
+        {
+          "page": "sketch.p2",
+          "label": "More",
+          "icon": "more",
+          "folder": true
+        }
+      ]
+    },
+    "sketch.p2": {
+      "title": "Sketch 2",
+      "keys": [
+        {
           "page": "sketch.polygon",
           "label": "Polygon",
           "peek": "ShapePolygonCircumscribed",
@@ -458,6 +737,11 @@
           "folder": true
         },
         {
+          "cmd": "CircleElipse",
+          "label": "Ellipse",
+          "match": "Ellipse"
+        },
+        {
           "cmd": "DrawPoint",
           "label": "Point",
           "match": "Point"
@@ -468,38 +752,51 @@
           "match": "Text"
         },
         {
-          "cmd": "SketchDimension",
-          "label": "Dimension",
-          "match": "Sketch Dimension"
+          "cmd": "FilletSketchCmd",
+          "label": "Fillet",
+          "match": "Fillet"
         },
         {
-          "cmd": "TrimSketchCmd",
-          "label": "Trim",
-          "match": "Trim"
+          "cmd": "ExtendSketchCmd",
+          "label": "Extend",
+          "match": "Extend"
         },
         {
-          "page": "sketch.create",
-          "label": "Create",
-          "folder": true,
-          "icon": "create-sketch"
+          "cmd": "MirrorSketchCommand",
+          "label": "Mirror",
+          "match": "Mirror"
         },
         {
-          "page": "sketch.modify",
-          "label": "Modify",
-          "folder": true,
-          "icon": "modify-sketch"
+          "cmd": "RectangularSketchPatternCommand",
+          "label": "Rect Pattern",
+          "match": "Rectangular Pattern"
         },
         {
-          "page": "sketch.constrain",
-          "label": "Constrain",
-          "folder": true,
-          "icon": "constrain-sketch"
+          "cmd": "SketchScaleCmd",
+          "label": "Scale",
+          "match": "Sketch Scale"
+        },
+        {
+          "cmd": "SketchConstructionCmd",
+          "label": "Construction",
+          "match": "Normal/Construction"
+        },
+        {
+          "page": "home",
+          "label": "Tabs",
+          "icon": "tabs",
+          "folder": true
         },
         {
           "page": "view",
           "label": "View",
-          "folder": true,
-          "icon": "view"
+          "icon": "view",
+          "folder": true
+        },
+        {
+          "nav": "back",
+          "label": "Page 1",
+          "icon": "more"
         }
       ]
     },
@@ -520,6 +817,11 @@
           "cmd": "ShapeRectangleCenter",
           "label": "Center",
           "match": "Center Rectangle"
+        },
+        {
+          "nav": "back",
+          "label": "Back",
+          "icon": "back"
         }
       ]
     },
@@ -550,6 +852,11 @@
           "cmd": "CircleThreeTangent",
           "label": "3-Tangent",
           "match": "3-Tangent Circle"
+        },
+        {
+          "nav": "back",
+          "label": "Back",
+          "icon": "back"
         }
       ]
     },
@@ -570,6 +877,11 @@
           "cmd": "ArcTangent",
           "label": "Tangent",
           "match": "Tangent Arc"
+        },
+        {
+          "nav": "back",
+          "label": "Back",
+          "icon": "back"
         }
       ]
     },
@@ -590,6 +902,11 @@
           "cmd": "ShapePolygonEdge",
           "label": "Edge",
           "match": "Edge Polygon"
+        },
+        {
+          "nav": "back",
+          "label": "Back",
+          "icon": "back"
         }
       ]
     },
@@ -620,6 +937,11 @@
           "cmd": "ShapeArcSlotCenterTwoPoint",
           "label": "Ctr Pt Arc",
           "match": "Center Point Arc Slot"
+        },
+        {
+          "nav": "back",
+          "label": "Back",
+          "icon": "back"
         }
       ]
     },
@@ -640,6 +962,77 @@
           "cmd": "ConicCurveCmd",
           "label": "Conic",
           "match": "Conic Curve"
+        },
+        {
+          "nav": "back",
+          "label": "Back",
+          "icon": "back"
+        }
+      ]
+    },
+    "sketch.create": {
+      "title": "Sketch Create",
+      "keys": [
+        {
+          "cmd": "CircularSketchPatternCommand",
+          "label": "Circ Pattern",
+          "match": "Circular Pattern"
+        },
+        {
+          "cmd": "ConicCurveCmd",
+          "label": "Conic",
+          "match": "Conic Curve"
+        },
+        {
+          "page": "sketch.project",
+          "label": "Project",
+          "folder": true,
+          "peek": "ProjectNewCmd"
+        },
+        {
+          "nav": "back",
+          "label": "Back",
+          "icon": "back"
+        }
+      ]
+    },
+    "sketch.project": {
+      "title": "Project / Include",
+      "keys": [
+        {
+          "cmd": "ProjectNewCmd",
+          "label": "Project",
+          "match": "Project"
+        },
+        {
+          "cmd": "IntersectCmd",
+          "label": "Intersect",
+          "match": "Intersect"
+        },
+        {
+          "cmd": "Include3DGeometry",
+          "label": "Include 3D",
+          "match": "Include 3D Geometry"
+        },
+        {
+          "cmd": "ProjectToSurface",
+          "label": "To Surface",
+          "match": "Project To Surface"
+        },
+        {
+          "cmd": "IntersectionCurve",
+          "label": "Isect Curve",
+          "match": "Intersection Curve"
+        },
+        {
+          "cmd": "SketchIsoparametricCurve",
+          "label": "Isoparam",
+          "match": "Isoparametric Curve"
+        },
+        {
+          "nav": "back",
+          "label": "Back",
+          "icon": "back"
         }
       ]
     },
@@ -647,24 +1040,9 @@
       "title": "Sketch Modify",
       "keys": [
         {
-          "cmd": "FilletSketchCmd",
-          "label": "Fillet",
-          "match": "Fillet"
-        },
-        {
           "cmd": "ChamferSketchEqualDistance",
           "label": "Chamfer",
           "match": "Equal Distance Chamfer"
-        },
-        {
-          "cmd": "TrimSketchCmd",
-          "label": "Trim",
-          "match": "Trim"
-        },
-        {
-          "cmd": "ExtendSketchCmd",
-          "label": "Extend",
-          "match": "Extend"
         },
         {
           "cmd": "BreakSketchCmd",
@@ -672,24 +1050,14 @@
           "match": "Break"
         },
         {
-          "cmd": "SketchScaleCmd",
-          "label": "Scale",
-          "match": "Sketch Scale"
-        },
-        {
-          "cmd": "Offset",
-          "label": "Offset",
-          "match": "Offset"
-        },
-        {
           "cmd": "FusionMoveCommand",
           "label": "Move",
           "match": "Move/Copy"
         },
         {
-          "cmd": "SketchConstructionCmd",
-          "label": "Construction",
-          "match": "Normal/Construction"
+          "nav": "back",
+          "label": "Back",
+          "icon": "back"
         }
       ]
     },
@@ -755,6 +1123,177 @@
           "cmd": "ConstraintSmooth",
           "label": "Curvature",
           "match": "Curvature"
+        },
+        {
+          "nav": "back",
+          "label": "Back",
+          "icon": "back"
+        }
+      ]
+    },
+    "form": {
+      "title": "Form",
+      "_note": "Reached when Fusion enters the T-Spline environment. Confirmed live 2026-07-28: workspace TSplineEnvironment, tab FormTab.",
+      "keys": [
+        {
+          "cmd": "TSplineBaseFeatureStop",
+          "label": "Finish Form",
+          "match": "Finish Form"
+        },
+        {
+          "cmd": "TSplineEditCommand",
+          "label": "Edit Form",
+          "match": "Edit Form"
+        },
+        {
+          "cmd": "TSplinePrimitiveBoxCommand",
+          "label": "Box",
+          "match": "Box"
+        },
+        {
+          "cmd": "TSplinePrimitiveSphereCommand",
+          "label": "Sphere",
+          "match": "Sphere"
+        },
+        {
+          "cmd": "TSplinePrimitiveQuadBallCommand",
+          "label": "Quadball",
+          "match": "Quadball"
+        },
+        {
+          "cmd": "TSplineInsertEdgeCommand",
+          "label": "Insert Edge",
+          "match": "Insert Edge"
+        },
+        {
+          "cmd": "TSplineSubsetCmd",
+          "label": "Subdivide",
+          "match": "Subdivide"
+        },
+        {
+          "cmd": "TSplineBridgeSubDCmd",
+          "label": "Bridge",
+          "match": "Bridge"
+        },
+        {
+          "cmd": "TSplineFillHoleCmd",
+          "label": "Fill Hole",
+          "match": "Fill Hole"
+        },
+        {
+          "cmd": "TSplineWeldCommand",
+          "label": "Weld",
+          "match": "Weld Vertices"
+        },
+        {
+          "cmd": "TSplineCreasedEdgeCommand",
+          "label": "Crease",
+          "match": "Crease"
+        },
+        {
+          "cmd": "TSpline2BRepCommand",
+          "label": "Convert",
+          "match": "Convert"
+        },
+        {
+          "page": "home",
+          "label": "Tabs",
+          "icon": "tabs",
+          "folder": true
+        },
+        {
+          "page": "view",
+          "label": "View",
+          "icon": "view",
+          "folder": true
+        },
+        {
+          "page": "form.p2",
+          "label": "More",
+          "icon": "more",
+          "folder": true
+        }
+      ]
+    },
+    "form.p2": {
+      "title": "Form 2",
+      "keys": [
+        {
+          "cmd": "TSplineExtrudeCommand",
+          "label": "Extrude",
+          "match": "Extrude"
+        },
+        {
+          "cmd": "TSplineThickenCommand",
+          "label": "Thicken",
+          "match": "Thicken"
+        },
+        {
+          "cmd": "TSplineRevolveCommand",
+          "label": "Revolve",
+          "match": "Revolve"
+        },
+        {
+          "cmd": "TSplineSweepCommand",
+          "label": "Sweep",
+          "match": "Sweep"
+        },
+        {
+          "cmd": "TSplineLoft",
+          "label": "Loft",
+          "match": "Loft"
+        },
+        {
+          "cmd": "TSplineMatchCmd",
+          "label": "Match",
+          "match": "Match"
+        },
+        {
+          "cmd": "TSplineSmoothCmd",
+          "label": "Smooth",
+          "match": "Smooth"
+        },
+        {
+          "cmd": "TSplineFlattenSubDCmd",
+          "label": "Flatten",
+          "match": "Flatten"
+        },
+        {
+          "cmd": "TSplineSlideEdgeCommand",
+          "label": "Slide Edge",
+          "match": "Slide Edge"
+        },
+        {
+          "cmd": "TSplineReflectionMirrorSymmetryCmd",
+          "label": "Mirror Sym",
+          "match": "Mirror - Duplicate"
+        },
+        {
+          "cmd": "TSplinePrimitivePlaneCommand",
+          "label": "Plane",
+          "match": "Plane"
+        },
+        {
+          "cmd": "TSplineToggleTessModeCmd",
+          "label": "Display Mode",
+          "match": "Display Mode"
+        },
+        {
+          "page": "home",
+          "label": "Tabs",
+          "icon": "tabs",
+          "folder": true
+        },
+        {
+          "page": "view",
+          "label": "View",
+          "icon": "view",
+          "folder": true
+        },
+        {
+          "nav": "back",
+          "label": "Page 1",
+          "icon": "more"
         }
       ]
     },
@@ -777,16 +1316,6 @@
           "match": "Extrude"
         },
         {
-          "cmd": "SurfaceRevolve",
-          "label": "Revolve",
-          "match": "Revolve"
-        },
-        {
-          "cmd": "FusionSurfaceOffsetCommand",
-          "label": "Offset",
-          "match": "Offset"
-        },
-        {
           "cmd": "FusionSurfaceTrimCommand",
           "label": "Trim",
           "match": "Trim"
@@ -807,15 +1336,130 @@
           "match": "Unstitch"
         },
         {
+          "cmd": "FusionSurfaceThickenCommand",
+          "label": "Thicken",
+          "match": "Thicken"
+        },
+        {
+          "cmd": "FusionDeleteFacesCommand",
+          "label": "Delete Face",
+          "match": "Delete Faces"
+        },
+        {
+          "cmd": "FusionSurfaceOffsetCommand",
+          "label": "Offset",
+          "match": "Offset"
+        },
+        {
+          "cmd": "SurfaceLoft",
+          "label": "Loft",
+          "match": "Loft"
+        },
+        {
+          "cmd": "SurfaceRevolve",
+          "label": "Revolve",
+          "match": "Revolve"
+        },
+        {
+          "page": "home",
+          "label": "Tabs",
+          "icon": "tabs",
+          "folder": true
+        },
+        {
+          "page": "view",
+          "label": "View",
+          "icon": "view",
+          "folder": true
+        },
+        {
+          "page": "surface.p2",
+          "label": "More",
+          "icon": "more",
+          "folder": true
+        }
+      ]
+    },
+    "surface.p2": {
+      "title": "Surface 2",
+      "keys": [
+        {
+          "cmd": "SurfaceSweep",
+          "label": "Sweep",
+          "match": "Sweep"
+        },
+        {
+          "cmd": "SurfaceSculpt",
+          "label": "Boundary Fill",
+          "match": "Boundary Fill"
+        },
+        {
+          "cmd": "FusionSurfaceRuledCommand",
+          "label": "Ruled",
+          "match": "Ruled"
+        },
+        {
+          "cmd": "FusionSurfaceMergeCommand",
+          "label": "Merge",
+          "match": "Merge"
+        },
+        {
+          "cmd": "FusionSurfaceUntrimCommand",
+          "label": "Untrim",
+          "match": "Untrim"
+        },
+        {
           "cmd": "FusionSurfaceReverseNormalCommand",
           "label": "Reverse",
           "match": "Reverse Normal"
         },
         {
+          "cmd": "FusionSurfaceOffsetShellCommand",
+          "label": "Offset Shell",
+          "match": "Offset Shell"
+        },
+        {
+          "cmd": "SurfaceShellConvertCommand",
+          "label": "Shell Srf",
+          "match": "Shell from Surface"
+        },
+        {
+          "cmd": "MirrorCommand",
+          "label": "Mirror",
+          "match": "Mirror"
+        },
+        {
+          "cmd": "PatternRectangular",
+          "label": "Rect Pattern",
+          "match": "Rectangular Pattern"
+        },
+        {
+          "page": "solid.construct",
+          "label": "Construct",
+          "folder": true,
+          "peek": "ConstructionPlaneOffsetFromPlaneCommand"
+        },
+        {
+          "cmd": "MeasureCommand",
+          "label": "Measure",
+          "match": "Measure"
+        },
+        {
+          "page": "home",
+          "label": "Tabs",
+          "icon": "tabs",
+          "folder": true
+        },
+        {
           "page": "view",
           "label": "View",
-          "folder": true,
-          "icon": "view"
+          "icon": "view",
+          "folder": true
+        },
+        {
+          "nav": "back",
+          "label": "Page 1",
+          "icon": "more"
         }
       ]
     },
@@ -853,15 +1497,135 @@
           "match": "Smooth"
         },
         {
+          "cmd": "ParaMeshHollowCommand",
+          "label": "Shell",
+          "match": "Shell"
+        },
+        {
+          "cmd": "ParaMeshCombineCommand",
+          "label": "Combine",
+          "match": "Combine"
+        },
+        {
+          "cmd": "ParaMeshExtractCommand",
+          "label": "Separate",
+          "match": "Separate"
+        },
+        {
           "cmd": "ParaMeshConvertCommand",
           "label": "Convert",
           "match": "Convert Mesh"
         },
         {
+          "cmd": "ParaMeshCalculateFaceGroupsCommand",
+          "label": "Face Groups",
+          "match": "Generate Face Groups"
+        },
+        {
+          "cmd": "ParaMeshBaseFeatureCreateCommand",
+          "label": "Direct Edit",
+          "match": "Direct Edit"
+        },
+        {
+          "page": "home",
+          "label": "Tabs",
+          "icon": "tabs",
+          "folder": true
+        },
+        {
           "page": "view",
           "label": "View",
+          "icon": "view",
+          "folder": true
+        },
+        {
+          "page": "mesh.p2",
+          "label": "More",
+          "icon": "more",
+          "folder": true
+        }
+      ]
+    },
+    "mesh.p2": {
+      "title": "Mesh 2",
+      "keys": [
+        {
+          "cmd": "ParaMeshBaseFeatureStopCommand",
+          "label": "Finish Edit",
+          "match": "Finish Direct Edit"
+        },
+        {
+          "cmd": "ParaMeshScaleCommand",
+          "label": "Scale",
+          "match": "Scale Mesh"
+        },
+        {
+          "cmd": "ParaMeshReverseNormalsCommand",
+          "label": "Reverse",
+          "match": "Reverse Normal"
+        },
+        {
+          "cmd": "ParaMeshEraseAndFillCommand",
+          "label": "Erase & Fill",
+          "match": "Erase And Fill"
+        },
+        {
+          "cmd": "ParaMeshCloseCracksCommand",
+          "label": "Close Cracks",
+          "match": "Close Cracks"
+        },
+        {
+          "cmd": "ParaMeshBridgeCommand",
+          "label": "Bridge",
+          "match": "Bridge"
+        },
+        {
+          "cmd": "ParaMeshSmoothBoundaryCommand",
+          "label": "Smooth Bnd",
+          "match": "Smooth Boundary"
+        },
+        {
+          "cmd": "ParaMeshToQuadMeshCommand",
+          "label": "To Quad",
+          "match": "Convert To Quad Mesh"
+        },
+        {
+          "cmd": "ParaMeshPlanarSectionCommand",
+          "label": "Section Sk",
+          "match": "Create Mesh Section Sketch"
+        },
+        {
+          "cmd": "ParaMeshTessellateCommand",
+          "label": "Tessellate",
+          "match": "Tessellate"
+        },
+        {
+          "page": "solid.construct",
+          "label": "Construct",
           "folder": true,
-          "icon": "view"
+          "peek": "ConstructionPlaneOffsetFromPlaneCommand"
+        },
+        {
+          "cmd": "MeasureCommand",
+          "label": "Measure",
+          "match": "Measure"
+        },
+        {
+          "page": "home",
+          "label": "Tabs",
+          "icon": "tabs",
+          "folder": true
+        },
+        {
+          "page": "view",
+          "label": "View",
+          "icon": "view",
+          "folder": true
+        },
+        {
+          "nav": "back",
+          "label": "Page 1",
+          "icon": "more"
         }
       ]
     },
@@ -909,10 +1673,374 @@
           "match": "Sheet Metal Rules"
         },
         {
+          "cmd": "FusionSheetMetalRipCommand",
+          "label": "Rip",
+          "match": "Rip"
+        },
+        {
+          "cmd": "FusionSheetMetalCornerCommand",
+          "label": "Corner",
+          "match": "Corner Closure"
+        },
+        {
+          "cmd": "ConvertToSheetMetalCmd",
+          "label": "Convert",
+          "match": "Convert to Sheet Metal"
+        },
+        {
+          "cmd": "FusionHoleCommand",
+          "label": "Hole",
+          "match": "Hole"
+        },
+        {
+          "page": "home",
+          "label": "Tabs",
+          "icon": "tabs",
+          "folder": true
+        },
+        {
           "page": "view",
           "label": "View",
+          "icon": "view",
+          "folder": true
+        },
+        {
+          "page": "sheetmetal.p2",
+          "label": "More",
+          "icon": "more",
+          "folder": true
+        }
+      ]
+    },
+    "sheetmetal.p2": {
+      "title": "Sheet Metal 2",
+      "keys": [
+        {
+          "cmd": "FusionSheetMetalLoftCommand",
+          "label": "Lofted Flange",
+          "match": "Lofted Flange"
+        },
+        {
+          "cmd": "FusionSheetMetalFilletCommand",
+          "label": "SM Fillet",
+          "match": "Sheet Metal Fillet"
+        },
+        {
+          "cmd": "FusionSheetMetalChamferCommand",
+          "label": "SM Chamfer",
+          "match": "Sheet Metal Chamfer"
+        },
+        {
+          "cmd": "ChangeSheetMetalDataCommand",
+          "label": "Switch Rule",
+          "match": "Switch Sheet Metal Rule"
+        },
+        {
+          "cmd": "FusionSheetMetalFlatPatternActivateCmd",
+          "label": "Activate Flat",
+          "match": "Activate"
+        },
+        {
+          "cmd": "FusionSheetMetalExitFlatPatternCmd",
+          "label": "Finish Flat",
+          "match": "Finish Flat Pattern"
+        },
+        {
+          "cmd": "MirrorCommand",
+          "label": "Mirror",
+          "match": "Mirror"
+        },
+        {
+          "cmd": "PatternRectangular",
+          "label": "Rect Pattern",
+          "match": "Rectangular Pattern"
+        },
+        {
+          "cmd": "FusionMoveCommand",
+          "label": "Move",
+          "match": "Move/Copy"
+        },
+        {
+          "cmd": "FusionCombineCommand",
+          "label": "Combine",
+          "match": "Combine"
+        },
+        {
+          "page": "solid.construct",
+          "label": "Construct",
           "folder": true,
-          "icon": "view"
+          "peek": "ConstructionPlaneOffsetFromPlaneCommand"
+        },
+        {
+          "cmd": "MeasureCommand",
+          "label": "Measure",
+          "match": "Measure"
+        },
+        {
+          "page": "home",
+          "label": "Tabs",
+          "icon": "tabs",
+          "folder": true
+        },
+        {
+          "page": "view",
+          "label": "View",
+          "icon": "view",
+          "folder": true
+        },
+        {
+          "nav": "back",
+          "label": "Page 1",
+          "icon": "more"
+        }
+      ]
+    },
+    "plastic": {
+      "title": "Plastic",
+      "keys": [
+        {
+          "cmd": "SketchCreate",
+          "label": "Sketch",
+          "match": "Create Sketch"
+        },
+        {
+          "cmd": "Extrude",
+          "label": "Extrude",
+          "match": "Extrude"
+        },
+        {
+          "cmd": "FusionShellBodyCommand",
+          "label": "Shell",
+          "match": "Shell"
+        },
+        {
+          "cmd": "FusionRibCommand",
+          "label": "Rib",
+          "match": "Rib"
+        },
+        {
+          "cmd": "FusionWebCommand",
+          "label": "Web",
+          "match": "Web"
+        },
+        {
+          "cmd": "FusionBossCommand",
+          "label": "Boss",
+          "match": "Boss"
+        },
+        {
+          "cmd": "FusionSnapFitCommand",
+          "label": "Snap Fit",
+          "match": "Snap Fit"
+        },
+        {
+          "cmd": "FusionLipCommand",
+          "label": "Lip",
+          "match": "Lip"
+        },
+        {
+          "cmd": "FusionDraftCommand",
+          "label": "Draft",
+          "match": "Draft"
+        },
+        {
+          "cmd": "FusionFilletEdgesCommand",
+          "label": "Fillet",
+          "match": "Fillet"
+        },
+        {
+          "cmd": "EmbossCmd",
+          "label": "Emboss",
+          "match": "Emboss"
+        },
+        {
+          "cmd": "FusionAssignPlasticRuleCommand",
+          "label": "Plastic Rule",
+          "match": "Assign Plastic Rule"
+        },
+        {
+          "page": "home",
+          "label": "Tabs",
+          "icon": "tabs",
+          "folder": true
+        },
+        {
+          "page": "view",
+          "label": "View",
+          "icon": "view",
+          "folder": true
+        },
+        {
+          "page": "plastic.p2",
+          "label": "More",
+          "icon": "more",
+          "folder": true
+        }
+      ]
+    },
+    "plastic.p2": {
+      "title": "Plastic 2",
+      "keys": [
+        {
+          "cmd": "FusionThreadCommand",
+          "label": "Thread",
+          "match": "Thread"
+        },
+        {
+          "cmd": "FusionHoleCommand",
+          "label": "Hole",
+          "match": "Hole"
+        },
+        {
+          "cmd": "FusionChamferCommand",
+          "label": "Chamfer",
+          "match": "Chamfer"
+        },
+        {
+          "cmd": "FusionSurfaceThickenCommand",
+          "label": "Thicken",
+          "match": "Thicken"
+        },
+        {
+          "cmd": "MirrorCommand",
+          "label": "Mirror",
+          "match": "Mirror"
+        },
+        {
+          "cmd": "PatternRectangular",
+          "label": "Rect Pattern",
+          "match": "Rectangular Pattern"
+        },
+        {
+          "cmd": "FusionCombineCommand",
+          "label": "Combine",
+          "match": "Combine"
+        },
+        {
+          "cmd": "FusionSplitBodyCommand",
+          "label": "Split Body",
+          "match": "Split Body"
+        },
+        {
+          "cmd": "FusionMoveCommand",
+          "label": "Move",
+          "match": "Move/Copy"
+        },
+        {
+          "cmd": "FusionManagePlasticRuleCommand",
+          "label": "Manage Rules",
+          "match": "Manage Plastic Rules"
+        },
+        {
+          "page": "solid.construct",
+          "label": "Construct",
+          "folder": true,
+          "peek": "ConstructionPlaneOffsetFromPlaneCommand"
+        },
+        {
+          "cmd": "MeasureCommand",
+          "label": "Measure",
+          "match": "Measure"
+        },
+        {
+          "page": "home",
+          "label": "Tabs",
+          "icon": "tabs",
+          "folder": true
+        },
+        {
+          "page": "view",
+          "label": "View",
+          "icon": "view",
+          "folder": true
+        },
+        {
+          "nav": "back",
+          "label": "Page 1",
+          "icon": "more"
+        }
+      ]
+    },
+    "utilities": {
+      "title": "Utilities",
+      "_note": "One page only, deliberately. Nothing here creates geometry -- it measures, checks or exports it -- and what would have gone on a page 2 (Curvature Map, Measure Alignment, component colour cycling, Show Text Commands) is once-a-year work that belongs in the ribbon. The More key therefore does not appear; slot 15 is Section instead.",
+      "keys": [
+        {
+          "cmd": "MeasureCommand",
+          "label": "Measure",
+          "match": "Measure"
+        },
+        {
+          "cmd": "InterferenceCheckCommand",
+          "label": "Interference",
+          "match": "Interference"
+        },
+        {
+          "cmd": "CenterOfMassCommand",
+          "label": "Centre Mass",
+          "match": "Center of Mass"
+        },
+        {
+          "cmd": "FusionDraftAnalysisCommand",
+          "label": "Draft Anal.",
+          "match": "Draft Analysis"
+        },
+        {
+          "cmd": "FusionZebraAnalysisCommand",
+          "label": "Zebra",
+          "match": "Zebra Analysis"
+        },
+        {
+          "cmd": "FusionCurvatureCombAnalysisCommand",
+          "label": "Curv Comb",
+          "match": "Curvature Comb Analysis"
+        },
+        {
+          "cmd": "FusionMinimumRadiusAnalysisCommand",
+          "label": "Min Radius",
+          "match": "Minimum Radius Analysis"
+        },
+        {
+          "cmd": "FusionAccessibilityAnalysisCommand",
+          "label": "Accessibility",
+          "match": "Accessibility Analysis"
+        },
+        {
+          "cmd": "ThreeDprintCmdDef",
+          "label": "3D Print",
+          "match": "3D Print"
+        },
+        {
+          "cmd": "ChangeParameterCommand",
+          "label": "Parameters",
+          "match": "Change Parameters"
+        },
+        {
+          "cmd": "ScriptsManagerCommand",
+          "label": "Add-Ins",
+          "match": "Scripts and Add-Ins..."
+        },
+        {
+          "cmd": "FusionViewColorCyclingToggleCmd",
+          "label": "Comp Colours",
+          "match": "Display Component Colors"
+        },
+        {
+          "page": "home",
+          "label": "Tabs",
+          "icon": "tabs",
+          "folder": true
+        },
+        {
+          "page": "view",
+          "label": "View",
+          "icon": "view",
+          "folder": true
+        },
+        {
+          "cmd": "FusionHalfSectionViewCommand",
+          "label": "Section",
+          "match": "Section Analysis"
         }
       ]
     },
@@ -967,8 +2095,14 @@
         {
           "label": "Wireframe",
           "view": "wireframe"
+        },
+        {
+          "nav": "back",
+          "label": "Back",
+          "icon": "back"
         }
-      ]
+      ],
+      "global": true
     },
     "dialog": {
       "title": "Command",
@@ -986,74 +2120,86 @@
         }
       ]
     },
-    "sketch.create": {
-      "title": "Sketch Create",
+    "mesh.direct": {
+      "title": "Direct Mesh Editing",
+      "_note": "Fusion's Direct Mesh Editing environment, entered from the mesh page's Direct Edit key. It was a trap before this page existed: the environment has its own Finish, the device fell through to the Solid page, and Finish Direct Edit sat on mesh.p2 where it could not be reached. Finish is therefore slot 1. Matched on tab id ALONE, without a workspace: ParaMeshBaseFeatureTab is unique across the 219 tabs in tab-dump.json, and it is not confirmed whether entering the environment moves Fusion into a different workspace the way Create Form does. Which commands Fusion actually enables in here is unverified -- the set below is the direct-editing subset of the mesh tools.",
       "keys": [
         {
-          "cmd": "CircleElipse",
-          "label": "Ellipse",
-          "match": "Ellipse"
+          "cmd": "ParaMeshBaseFeatureStopCommand",
+          "label": "Finish",
+          "match": "Finish Direct Edit"
         },
         {
-          "cmd": "ConicCurveCmd",
-          "label": "Conic",
-          "match": "Conic Curve"
+          "cmd": "ParaMeshRepairCommand",
+          "label": "Repair",
+          "match": "Repair"
         },
         {
-          "cmd": "MirrorSketchCommand",
-          "label": "Mirror",
-          "match": "Mirror"
+          "cmd": "ParaMeshRemeshCommand",
+          "label": "Remesh",
+          "match": "Remesh"
         },
         {
-          "cmd": "CircularSketchPatternCommand",
-          "label": "Circ Pattern",
-          "match": "Circular Pattern"
+          "cmd": "ParaMeshReduceCommand",
+          "label": "Reduce",
+          "match": "Reduce"
         },
         {
-          "cmd": "RectangularSketchPatternCommand",
-          "label": "Rect Pattern",
-          "match": "Rectangular Pattern"
+          "cmd": "ParaMeshSmoothCommand",
+          "label": "Smooth",
+          "match": "Smooth"
         },
         {
-          "page": "sketch.project",
-          "label": "Project",
-          "folder": true,
-          "peek": "ProjectNewCmd"
-        }
-      ]
-    },
-    "sketch.project": {
-      "title": "Project / Include",
-      "keys": [
-        {
-          "cmd": "ProjectNewCmd",
-          "label": "Project",
-          "match": "Project"
+          "cmd": "ParaMeshPlaneCutCommand",
+          "label": "Plane Cut",
+          "match": "Plane Cut"
         },
         {
-          "cmd": "IntersectCmd",
-          "label": "Intersect",
-          "match": "Intersect"
+          "cmd": "ParaMeshEraseAndFillCommand",
+          "label": "Erase & Fill",
+          "match": "Erase And Fill"
         },
         {
-          "cmd": "Include3DGeometry",
-          "label": "Include 3D",
-          "match": "Include 3D Geometry"
+          "cmd": "ParaMeshCloseCracksCommand",
+          "label": "Close Cracks",
+          "match": "Close Cracks"
         },
         {
-          "cmd": "ProjectToSurface",
-          "label": "To Surface",
-          "match": "Project To Surface"
+          "cmd": "ParaMeshBridgeCommand",
+          "label": "Bridge",
+          "match": "Bridge"
         },
         {
-          "cmd": "IntersectionCurve",
-          "label": "Isect Curve",
-          "match": "Intersection Curve"
+          "cmd": "ParaMeshRemoveCommand",
+          "label": "Remove",
+          "match": "Remove"
         },
         {
-          "cmd": "SketchIsoparametricCurve",
-          "label": "Isoparam",
-          "match": "Isoparametric Curve"
+          "cmd": "ParaMeshCombineCommand",
+          "label": "Combine",
+          "match": "Combine"
+        },
+        {
+          "cmd": "ParaMeshScaleCommand",
+          "label": "Scale",
+          "match": "Scale Mesh"
+        },
+        {
+          "page": "home",
+          "label": "Tabs",
+          "icon": "tabs",
+          "folder": true
+        },
+        {
+          "page": "view",
+          "label": "View",
+          "icon": "view",
+          "folder": true
+        },
+        {
+          "cmd": "ParaMeshReverseNormalsCommand",
+          "label": "Reverse",
+          "match": "Reverse Normal"
         }
       ]
     }

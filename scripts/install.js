@@ -41,6 +41,17 @@ const TARGETS = [
   }
 ];
 
+/*
+ * Never shipped: compiled bytecode and editor/VCS droppings.
+ *
+ * __pycache__ matters more than it looks. Running a syntax check in the source tree leaves
+ * .pyc files behind, and copying those into the AddIns folder puts stale bytecode next to
+ * fresh source -- the same "it is running code I did not install" failure that cost three
+ * rounds of hardware debugging on 2026-07-28. Python would usually recompile, but "usually"
+ * is not a property worth relying on for the one thing hardest to diagnose.
+ */
+const NEVER_COPY = new Set(['__pycache__', '.git', '.DS_Store', 'node_modules']);
+
 function copyTree(from, to, preserve, prefix = '') {
   fs.mkdirSync(to, { recursive: true });
   for (const entry of fs.readdirSync(from, { withFileTypes: true })) {
@@ -48,6 +59,17 @@ function copyTree(from, to, preserve, prefix = '') {
     const destination = path.join(to, entry.name);
     const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
 
+    if (NEVER_COPY.has(entry.name) || entry.name.endsWith('.pyc')) {
+      // Skipping the source copy is not enough. Anyone who installed before this guard
+      // existed already has a __pycache__ sitting in their AddIns folder, and copyTree only
+      // ever adds -- so the one machine that actually has the problem would keep it while
+      // the changelog claimed it was fixed. Prune the destination too.
+      if (fs.existsSync(destination)) {
+        fs.rmSync(destination, { recursive: true, force: true });
+        console.log(`    pruned ${relative}  (stale, never shipped)`);
+      }
+      continue;
+    }
     if (entry.isDirectory()) {
       copyTree(source, destination, preserve, relative);
       continue;

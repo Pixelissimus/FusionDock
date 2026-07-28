@@ -22,6 +22,10 @@ const { Navigator, resolveRootPage, matchesRule } = layoutModule;
 
 const SHIPPED_LAYOUT_PATH = path.join(__dirname, '..', 'src', 'layouts', 'default.json');
 
+// The real number of context slots on the N1. Not a magic 12: all 15 keys have been context
+// keys since the fixed-region change, and a stale slot count made a page look overfull.
+const SLOT_COUNT = 15;
+
 function makeLayout() {
   return {
     fixed: [{ cmd: 'UndoCommand', label: 'Undo' }],
@@ -181,6 +185,45 @@ test('scroll position is remembered per context too', () => {
   assert.strictEqual(nav.offset, 1, 'scroll offset must survive the round trip');
 });
 
+/*
+ * Reported on hardware 2026-07-28, in Jamie's words: "if I press solid, it goes back to new
+ * tab". Pressing Tabs pushed the global home page onto Solid's stack, the per-context memory
+ * recorded it, and returning to Solid restored it. Global pages are now excluded from memory.
+ */
+test('a global door is never remembered as if it were a sub-page', () => {
+  const layout = JSON.parse(fs.readFileSync(SHIPPED_LAYOUT_PATH, 'utf8'));
+  const nav = new Navigator(layout);
+  const at = (tab) => ({ connected: true, workspace: 'FusionSolidEnvironment', tab: tab,
+    tabName: null, inSketch: false, dialogOpen: false, hasDesign: true });
+
+  nav.applyState(at('SolidTab'));
+  assert.strictEqual(nav.currentPageId(), 'solid');
+
+  nav.open('home');                       // the fixed Tabs key
+  assert.strictEqual(nav.currentPageId(), 'home');
+
+  nav.applyState(at('SurfaceTab'));
+  assert.strictEqual(nav.currentPageId(), 'surface', 'switching tab must leave the door');
+
+  nav.applyState(at('SolidTab'));
+  assert.strictEqual(nav.currentPageId(), 'solid',
+    'coming back to Solid must land on Solid, not on the tabs page it had open');
+
+  // The actual feature still has to work: a real folder IS remembered.
+  nav.open('solid.create');
+  nav.applyState(at('SurfaceTab'));
+  nav.applyState(at('SolidTab'));
+  assert.strictEqual(nav.currentPageId(), 'solid.create',
+    'a genuine sub-page must still survive the round trip');
+
+  // And View, the other global, behaves the same way.
+  nav.home();
+  nav.open('view');
+  nav.applyState(at('SurfaceTab'));
+  nav.applyState(at('SolidTab'));
+  assert.strictEqual(nav.currentPageId(), 'solid');
+});
+
 test('a remembered sub-page that no longer exists is dropped, not rendered empty', () => {
   const layout = makeLayout();
   const nav = new Navigator(layout);
@@ -268,7 +311,17 @@ test('the shipped layout is valid and self-consistent', () => {
         assert.ok(layout.pages[key.page],
           `page "${pageId}" links to missing page "${key.page}"`);
       }
-      assert.ok(key.cmd || key.page || key.text || key.view || key.disabled,
+      // nav is checked against the values activate() actually handles, not merely for being
+      // present. A typo such as nav: "Back" would otherwise satisfy the assertion below while
+      // doing nothing on the device — and on a folder page the Back key is the only
+      // key-based way out.
+      if (key.nav !== undefined) {
+        assert.ok(['back', 'home'].includes(key.nav),
+          `page "${pageId}" key "${key.label}" has nav "${key.nav}", `
+          + 'which activate() does not handle');
+      }
+      assert.ok(key.cmd || key.page || key.text || key.view || key.tab || key.workspace
+        || key.nav || key.disabled,
         `page "${pageId}" has a key with no action: ${JSON.stringify(key)}`);
     }
   }
@@ -302,7 +355,9 @@ test('the shipped layout is valid and self-consistent', () => {
   // unreachable now that View is not on a side button.
   for (const rule of layout.rules) {
     const page = layout.pages[rule.page];
-    if (rule.page === 'disconnected' || rule.page === 'dialog' || rule.page === 'view') {
+    // dashboard is two keys by design -- with no design open there is nothing to look at,
+    // so a View key there would be a third thing that cannot work.
+    if (['disconnected', 'dialog', 'view', 'dashboard'].includes(rule.page)) {
       continue;
     }
     assert.ok((page.keys || []).some((key) => key.page === 'view'),
@@ -312,6 +367,94 @@ test('the shipped layout is valid and self-consistent', () => {
   // A final catch-all rule is required or an unmatched state resolves to nothing.
   const last = layout.rules[layout.rules.length - 1];
   assert.deepStrictEqual(last.when, {}, 'last rule must be an unconditional fallback');
+});
+
+/*
+ * States captured verbatim off the running add-in, so the rules are checked against what
+ * Fusion actually publishes rather than against what the rules were written to expect.
+ *
+ * The start-screen case earned its place: the first version of that rule matched on
+ * hasDesign: false, which looked obviously right and could never fire -- Fusion keeps an
+ * Untitled document behind the start screen, so hasDesign is TRUE there. Only the workspace
+ * is null.
+ */
+test('real states captured from Fusion resolve to the right pages', () => {
+  const layout = JSON.parse(fs.readFileSync(SHIPPED_LAYOUT_PATH, 'utf8'));
+
+  const OBSERVED = [
+    // Fusion's start screen, 2026-07-28.
+    [{ connected: true, workspace: null, tab: null, tabName: null, inSketch: false,
+      dialogOpen: false, hasDesign: true, documentName: 'Untitled' }, 'dashboard'],
+    // The T-Spline environment, 2026-07-28. Form is a workspace, not a tab.
+    [{ connected: true, workspace: 'TSplineEnvironment', tab: 'FormTab', tabName: 'FORM',
+      inSketch: false, dialogOpen: false, hasDesign: true }, 'form'],
+    // Every tab id and display name below is verbatim from GET /tabs on 2026-07-28 --
+    // docs/research/tab-dump.json. Note 'Mesh', not 'MESH': Fusion's own casing is not
+    // consistent, which is exactly why the rules match on id.
+    [{ connected: true, workspace: 'FusionSolidEnvironment', tab: 'SolidTab', tabName: 'SOLID',
+      inSketch: false, dialogOpen: false, hasDesign: true }, 'solid'],
+    [{ connected: true, workspace: 'FusionSolidEnvironment', tab: 'SurfaceTab',
+      tabName: 'SURFACE', inSketch: false, dialogOpen: false, hasDesign: true }, 'surface'],
+    [{ connected: true, workspace: 'FusionSolidEnvironment', tab: 'ParaMeshOuterTab',
+      tabName: 'Mesh', inSketch: false, dialogOpen: false, hasDesign: true }, 'mesh'],
+    [{ connected: true, workspace: 'FusionSolidEnvironment', tab: 'SheetMetalTab',
+      tabName: 'SHEET METAL', inSketch: false, dialogOpen: false, hasDesign: true }, 'sheetmetal'],
+    [{ connected: true, workspace: 'FusionSolidEnvironment', tab: 'PlasticTab',
+      tabName: 'PLASTIC', inSketch: false, dialogOpen: false, hasDesign: true }, 'plastic'],
+    [{ connected: true, workspace: 'FusionSolidEnvironment', tab: 'ToolsTab',
+      tabName: 'UTILITIES', inSketch: false, dialogOpen: false, hasDesign: true }, 'utilities'],
+    [{ connected: true, workspace: 'FusionSolidEnvironment', tab: 'SketchTab', tabName: 'SKETCH',
+      inSketch: true, dialogOpen: false, hasDesign: true }, 'sketch'],
+    // Direct Mesh Editing. Matched on the tab alone, so it must resolve whichever workspace
+    // Fusion reports -- that is the part still unconfirmed on hardware.
+    [{ connected: true, workspace: 'FusionSolidEnvironment', tab: 'ParaMeshBaseFeatureTab',
+      tabName: 'Direct Mesh Editing', inSketch: false, dialogOpen: false, hasDesign: true },
+    'mesh.direct'],
+    [{ connected: true, workspace: 'SomeOtherEnvironment', tab: 'ParaMeshBaseFeatureTab',
+      tabName: 'Direct Mesh Editing', inSketch: false, dialogOpen: false, hasDesign: true },
+    'mesh.direct']
+  ];
+
+  for (const [state, expected] of OBSERVED) {
+    assert.strictEqual(resolveRootPage(layout, state), expected,
+      `state ${JSON.stringify(state)} should resolve to "${expected}"`);
+  }
+});
+
+/*
+ * The fixed region is the whole reason a context page is allowed to repaint all 15 keys: three
+ * of them never move, so there is always a door out. It only reads as a coherent block in both
+ * orientations at slots 13-15, which means it must be the LAST three entries of the ordered
+ * list -- an accidental 14- or 16-key page silently slides it somewhere else.
+ */
+test('every context page fills exactly 15 slots and ends with the fixed region', () => {
+  const layout = JSON.parse(fs.readFileSync(SHIPPED_LAYOUT_PATH, 'utf8'));
+
+  // Pages a rule can land on, minus the ones that are deliberately short prompts.
+  const contextPages = layout.rules
+    .map((rule) => rule.page)
+    .filter((id) => !['disconnected', 'dialog', 'home', 'dashboard'].includes(id));
+  // ...plus their page 2s, which are reached by the More key.
+  for (const id of Object.keys(layout.pages)) {
+    if (id.endsWith('.p2')) { contextPages.push(id); }
+  }
+  assert.ok(contextPages.length >= 8, 'expected a page per modelling context');
+
+  for (const id of contextPages) {
+    const keys = layout.pages[id].keys;
+    assert.strictEqual(keys.length, 15, `page "${id}" must fill all 15 slots`);
+
+    const [tabs, view, more] = keys.slice(12);
+    assert.strictEqual(tabs.page, 'home', `page "${id}" slot 13 must be the Tabs door`);
+    assert.strictEqual(view.page, 'view', `page "${id}" slot 14 must be the View door`);
+    // Slot 15 is More on a page 1, Back on a page 2, or a plain key on a context that has
+    // only one page. What it must never be is missing.
+    assert.ok(more && (more.page || more.nav || more.cmd),
+      `page "${id}" slot 15 must do something`);
+    if (id.endsWith('.p2')) {
+      assert.strictEqual(more.nav, 'back', `page "${id}" slot 15 must return to page 1`);
+    }
+  }
 });
 
 test('the shipped layout drives real navigation end to end', () => {
@@ -325,15 +468,21 @@ test('the shipped layout drives real navigation end to end', () => {
   nav.applyState({ connected: true, workspace: 'FusionSolidEnvironment', inSketch: true, dialogOpen: false });
   assert.strictEqual(nav.currentPageId(), 'sketch');
 
+  // Count the commands, not the raw slots: every folder page also carries a Back key, added
+  // 2026-07-28 so a folder has a visible exit rather than only the dial.
+  const variants = () => nav.currentPage().keys.filter((k) => !k.nav);
+  const exits = () => nav.currentPage().keys.filter((k) => k.nav === 'back');
+
   const rectangleKey = nav.currentPage().keys.find((k) => k.page === 'sketch.rectangle');
   assert.ok(rectangleKey, 'sketch page should offer a rectangle folder');
   nav.open(rectangleKey.page);
-  assert.strictEqual(nav.currentPage().keys.length, 3, 'three rectangle variants');
+  assert.strictEqual(variants().length, 3, 'three rectangle variants');
+  assert.strictEqual(exits().length, 1, 'and a visible way out');
 
-  // Circles: five variants, all fitting one page of 12 slots.
+  // Circles: five variants, all fitting one page of the real 15 slots.
   nav.back();
   const circleKey = nav.currentPage().keys.find((k) => k.page === 'sketch.circle');
   nav.open(circleKey.page);
-  assert.strictEqual(nav.currentPage().keys.length, 5);
-  assert.strictEqual(nav.pageCount(12), 1);
+  assert.strictEqual(variants().length, 5);
+  assert.strictEqual(nav.pageCount(SLOT_COUNT), 1);
 });

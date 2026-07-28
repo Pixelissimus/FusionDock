@@ -110,6 +110,43 @@ def read_state(app, ui):
     }
 
 
+def list_tabs(ui):
+    """Every workspace and its ribbon tabs, as ids and display names.
+
+    Tab ids are install-derived exactly like command ids, so they are read from the running
+    Fusion rather than written from memory. Same caveat as list_commands: a workspace the
+    user has not visited this session may not have built its tabs yet, so visit each one
+    before trusting the dump.
+    """
+    workspaces = []
+    try:
+        items = ui.workspaces
+    except Exception:
+        return workspaces
+
+    for workspace in items:
+        entry = {
+            "id": _safe(lambda: workspace.id),
+            "name": _safe(lambda: workspace.name),
+            "isActive": _safe(lambda: workspace.isActive, False),
+            "tabs": [],
+        }
+        try:
+            for tab in workspace.toolbarTabs:
+                entry["tabs"].append(
+                    {
+                        "id": _safe(lambda: tab.id),
+                        "name": _safe(lambda: tab.name),
+                        "isActive": _safe(lambda: tab.isActive, False),
+                        "isVisible": _safe(lambda: tab.isVisible, None),
+                    }
+                )
+        except Exception:
+            pass
+        workspaces.append(entry)
+    return workspaces
+
+
 def state_key(state):
     """Fields that should trigger a repaint when they change.
 

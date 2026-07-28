@@ -26,7 +26,7 @@ const STATIC_DIR = path.join(
 
 /* Icons built from line work, where thin strokes are a real risk. The two built from filled
  * shapes (create-solid, view) carry their own weight and are deliberately not listed. */
-const LINE_ART = ['create-sketch', 'modify-sketch', 'constrain-sketch', 'modify-solid'];
+const LINE_ART = ['create-sketch', 'modify-sketch', 'constrain-sketch', 'modify-solid', 'more', 'back'];
 
 const MIN_STROKE = 2;   // Fusion's own sketch icons measure 2-4px this way
 const KEY_SIZE = 62;    // what the plugin draws into a 96px key

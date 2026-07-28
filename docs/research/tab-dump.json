@@ -1,0 +1,1580 @@
+{
+  "workspaces": [
+    {
+      "id": "TSplineEnvironment",
+      "name": "Form",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "SolidTab",
+          "name": "SOLID",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "SurfaceTab",
+          "name": "SURFACE",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "ParaMeshOuterTab",
+          "name": "Mesh",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "FormTab",
+          "name": "FORM",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SheetMetalTab",
+          "name": "SHEET METAL",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "PlasticTab",
+          "name": "PLASTIC",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "AssemblyTab",
+          "name": "ASSEMBLY",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ManageTab",
+          "name": "MANAGE",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "ToolsTab",
+          "name": "UTILITIES",
+          "isActive": true,
+          "isVisible": true
+        },
+        {
+          "id": "PCBTab",
+          "name": "PCB",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "Package3DTab",
+          "name": "Package",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "BasefeatureSolidTab",
+          "name": "BASE FEATURE SOLID",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "BasefeatureSurfaceTab",
+          "name": "BASE FEATURE SURFACE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "EditSnapshotTab",
+          "name": "POSITION",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ParaMeshBaseFeatureTab",
+          "name": "Direct Mesh Editing",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "FusionSolidEnvironment",
+      "name": "Design",
+      "isActive": true,
+      "tabs": [
+        {
+          "id": "SolidTab",
+          "name": "SOLID",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "SurfaceTab",
+          "name": "SURFACE",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "ParaMeshOuterTab",
+          "name": "Mesh",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "FormTab",
+          "name": "FORM",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SheetMetalTab",
+          "name": "SHEET METAL",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "PlasticTab",
+          "name": "PLASTIC",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "AssemblyTab",
+          "name": "ASSEMBLY",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ManageTab",
+          "name": "MANAGE",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "ToolsTab",
+          "name": "UTILITIES",
+          "isActive": true,
+          "isVisible": true
+        },
+        {
+          "id": "PCBTab",
+          "name": "PCB",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "Package3DTab",
+          "name": "Package",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "BasefeatureSolidTab",
+          "name": "BASE FEATURE SOLID",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "BasefeatureSurfaceTab",
+          "name": "BASE FEATURE SURFACE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "EditSnapshotTab",
+          "name": "POSITION",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ParaMeshBaseFeatureTab",
+          "name": "Direct Mesh Editing",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "GenerativeEnvironment",
+      "name": "Generative Design",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "DefineTab",
+          "name": "DEFINE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ExploreTab",
+          "name": "EXPLORE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "OutcomeViewTab",
+          "name": "OUTCOME VIEW",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "EditModelWMEnv",
+      "name": "Edit Model",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "GenSolidTab",
+          "name": "EDIT MODEL SOLID",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "GenSurfaceTab",
+          "name": "EDIT MODEL SURFACE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "GenSketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "ExploreEnvironment",
+      "name": "Explore",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "GenSolidTab",
+          "name": "EDIT MODEL SOLID",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "GenSurfaceTab",
+          "name": "EDIT MODEL SURFACE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "GenSketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "FusionSurfaceEnvironment",
+      "name": "Surface",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "SolidTab",
+          "name": "SOLID",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "SurfaceTab",
+          "name": "SURFACE",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "ParaMeshOuterTab",
+          "name": "Mesh",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "FormTab",
+          "name": "FORM",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SheetMetalTab",
+          "name": "SHEET METAL",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "PlasticTab",
+          "name": "PLASTIC",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "AssemblyTab",
+          "name": "ASSEMBLY",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ManageTab",
+          "name": "MANAGE",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "ToolsTab",
+          "name": "UTILITIES",
+          "isActive": true,
+          "isVisible": true
+        },
+        {
+          "id": "PCBTab",
+          "name": "PCB",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "Package3DTab",
+          "name": "Package",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "BasefeatureSolidTab",
+          "name": "BASE FEATURE SOLID",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "BasefeatureSurfaceTab",
+          "name": "BASE FEATURE SURFACE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "EditSnapshotTab",
+          "name": "POSITION",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ParaMeshBaseFeatureTab",
+          "name": "Direct Mesh Editing",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "FusionSheetMetalEnvironment",
+      "name": "Sheet Metal",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "SolidTab",
+          "name": "SOLID",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "SurfaceTab",
+          "name": "SURFACE",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "ParaMeshOuterTab",
+          "name": "Mesh",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "FormTab",
+          "name": "FORM",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SheetMetalTab",
+          "name": "SHEET METAL",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "PlasticTab",
+          "name": "PLASTIC",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "AssemblyTab",
+          "name": "ASSEMBLY",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ManageTab",
+          "name": "MANAGE",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "ToolsTab",
+          "name": "UTILITIES",
+          "isActive": true,
+          "isVisible": true
+        },
+        {
+          "id": "PCBTab",
+          "name": "PCB",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "Package3DTab",
+          "name": "Package",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "BasefeatureSolidTab",
+          "name": "BASE FEATURE SOLID",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "BasefeatureSurfaceTab",
+          "name": "BASE FEATURE SURFACE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "EditSnapshotTab",
+          "name": "POSITION",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ParaMeshBaseFeatureTab",
+          "name": "Direct Mesh Editing",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "PCBEnvironment",
+      "name": "PCB",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "SolidTab",
+          "name": "SOLID",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "SurfaceTab",
+          "name": "SURFACE",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "ParaMeshOuterTab",
+          "name": "Mesh",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "FormTab",
+          "name": "FORM",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SheetMetalTab",
+          "name": "SHEET METAL",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "PlasticTab",
+          "name": "PLASTIC",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "AssemblyTab",
+          "name": "ASSEMBLY",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ManageTab",
+          "name": "MANAGE",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "ToolsTab",
+          "name": "UTILITIES",
+          "isActive": true,
+          "isVisible": true
+        },
+        {
+          "id": "PCBTab",
+          "name": "PCB",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "Package3DTab",
+          "name": "Package",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "BasefeatureSolidTab",
+          "name": "BASE FEATURE SOLID",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "BasefeatureSurfaceTab",
+          "name": "BASE FEATURE SURFACE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "EditSnapshotTab",
+          "name": "POSITION",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ParaMeshBaseFeatureTab",
+          "name": "Direct Mesh Editing",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "PCB3DEnvironment",
+      "name": "3D PCB",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "PCB3DTab",
+          "name": "3D PCB",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "PCBSketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "PCBBasefeatureSolidTab",
+          "name": "BASE FEATURE SOLID",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "Package3DEnvironment",
+      "name": "Package",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "SolidTab",
+          "name": "SOLID",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "SurfaceTab",
+          "name": "SURFACE",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "ParaMeshOuterTab",
+          "name": "Mesh",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "FormTab",
+          "name": "FORM",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SheetMetalTab",
+          "name": "SHEET METAL",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "PlasticTab",
+          "name": "PLASTIC",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "AssemblyTab",
+          "name": "ASSEMBLY",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ManageTab",
+          "name": "MANAGE",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "ToolsTab",
+          "name": "UTILITIES",
+          "isActive": true,
+          "isVisible": true
+        },
+        {
+          "id": "PCBTab",
+          "name": "PCB",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "Package3DTab",
+          "name": "Package",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "BasefeatureSolidTab",
+          "name": "BASE FEATURE SOLID",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "BasefeatureSurfaceTab",
+          "name": "BASE FEATURE SURFACE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "EditSnapshotTab",
+          "name": "POSITION",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ParaMeshBaseFeatureTab",
+          "name": "Direct Mesh Editing",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "FusionRenderEnvironment",
+      "name": "Render",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "RenderTab",
+          "name": "RENDER",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "Publisher3DEnvironment",
+      "name": "Animation",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "Animation",
+          "name": "ANIMATION",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "SimulationEnvironment",
+      "name": "Simulation",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "SimSetupTab",
+          "name": "SETUP",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SimResultsTab",
+          "name": "RESULTS",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SimResultsViewerTab",
+          "name": "RESULTS",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ViewerCompareTab",
+          "name": "COMPARE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "CompareTab",
+          "name": "COMPARE",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "SimplifyWMEnv",
+      "name": "Simplify",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "SimSolidTab",
+          "name": "SIMPLIFY SOLID",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SimSurfaceTab",
+          "name": "SIMPLIFY SURFACE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "IdealizeTab",
+          "name": "IDEALIZE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ToolsTab",
+          "name": "TOOLS",
+          "isActive": true,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "SimCompareEnvironment",
+      "name": "Compare",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "SimSolidTab",
+          "name": "SIMPLIFY SOLID",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SimSurfaceTab",
+          "name": "SIMPLIFY SURFACE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "IdealizeTab",
+          "name": "IDEALIZE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ToolsTab",
+          "name": "TOOLS",
+          "isActive": true,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "CAMEnvironment",
+      "name": "Manufacture",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "MillingTab",
+          "name": "Milling",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "TurningTab",
+          "name": "Turning",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "AdditiveTab",
+          "name": "Additive",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "AdditiveResultsTab",
+          "name": "Results",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ProbingTab",
+          "name": "Inspection",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "FabricationTab",
+          "name": "Fabrication",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "UtilitiesTab",
+          "name": "Utilities",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "PartAlignmentTab",
+          "name": "Part Alignment",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "LiveAlignmentTab",
+          "name": "Live Part Alignment",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SimulationTab",
+          "name": "Simulation",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "DebugEnvironment",
+      "name": "Debug",
+      "isActive": false,
+      "tabs": []
+    },
+    {
+      "id": "FusionModelingEnvironment",
+      "name": "Modeling",
+      "isActive": false,
+      "tabs": []
+    },
+    {
+      "id": "FusionAssembleEnvironment",
+      "name": "Assemble",
+      "isActive": false,
+      "tabs": []
+    },
+    {
+      "id": "FusionVisualizationEnvironment",
+      "name": "Visualization",
+      "isActive": false,
+      "tabs": []
+    },
+    {
+      "id": "ResultsViewerEnvironmentDora",
+      "name": "ResultsViewerDora",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "SimSolidTab",
+          "name": "SIMPLIFY SOLID",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SimSurfaceTab",
+          "name": "SIMPLIFY SURFACE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "IdealizeTab",
+          "name": "IDEALIZE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ToolsTab",
+          "name": "TOOLS",
+          "isActive": true,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "ResultsViewerEnvironmentHawkeye",
+      "name": "ResultsViewerHawkeye",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "SimSolidTab",
+          "name": "SIMPLIFY SOLID",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SimSurfaceTab",
+          "name": "SIMPLIFY SURFACE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "IdealizeTab",
+          "name": "IDEALIZE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ToolsTab",
+          "name": "TOOLS",
+          "isActive": true,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "MfgWorkingModelEnv",
+      "name": "Prepare",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "MfgSolidTab",
+          "name": "SOLID",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "MfgSurfaceTab",
+          "name": "SURFACE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "MfgParaMeshOuterTab",
+          "name": "Mesh",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "MfgFormTab",
+          "name": "FORM",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "MfgPlasticTab",
+          "name": "PLASTIC",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "MfgToolsTab",
+          "name": "UTILITIES",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "MfgVolFieldTab",
+          "name": "Volumetric",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "MfgLbrPackage3DTab",
+          "name": "3D Package",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "MfgBasefeatureSolidTab",
+          "name": "BASE FEATURE SOLID",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "MfgBasefeatureSurfaceTab",
+          "name": "BASE FEATURE SURFACE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "MfgSketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "MfgEditSnapshotTab",
+          "name": "POSITION",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "MachineBuilderEnvironment",
+      "name": "Machine Builder",
+      "isActive": false,
+      "tabs": []
+    },
+    {
+      "id": "FusionDocumentationEnvironment",
+      "name": "Drawing",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "FusionDocTab",
+          "name": "DRAWING",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ElectronicsTab",
+          "name": "ELECTRONICS",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ManageTab",
+          "name": "MANAGE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ToolsTab",
+          "name": "UTILITIES",
+          "isActive": true,
+          "isVisible": false
+        },
+        {
+          "id": "TitleBlockTab",
+          "name": "TITLE BLOCK",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "BorderTab",
+          "name": "BORDER",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SketchSymbolTab",
+          "name": "SKETCH SYMBOL",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ViewSketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "FusionDrawingsBlockEditorEnv",
+      "name": "Drawings Block Editor",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "TitleBlockTab",
+          "name": "TITLE BLOCK",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "BorderTab",
+          "name": "BORDER",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "FusionDrawingsSketchEnv",
+      "name": "Drawings Sketch Editor",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "SketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "FusionDrawingsSketchSymbolEnv",
+      "name": "Drawings Sketch Symbol Editor",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "SketchSymbolTab",
+          "name": "SKETCH SYMBOL",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "FusionDrawingsViewSketchEnv",
+      "name": "Drawings Sketch Editor",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "ViewSketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "ElectronEmptyLbrEnvironment",
+      "name": "Electronics Library",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "LbrEmptyTab",
+          "name": "CREATE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "LbrDocumentTab",
+          "name": "DOCUMENT",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "LbrManagementTab",
+          "name": "MANAGE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ToolsTab",
+          "name": "UTILITIES",
+          "isActive": true,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "ElectronDeviceEnvironment",
+      "name": "Electronics Library - Component",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "LbrDeviceTab",
+          "name": "COMPONENT",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "LbrDocumentTab",
+          "name": "DOCUMENT",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "LbrManagementTab",
+          "name": "MANAGE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ToolsTab",
+          "name": "UTILITIES",
+          "isActive": true,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "ElectronFootprintEnvironment",
+      "name": "Electronics Library - Footprint",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "LbrFootprintTab",
+          "name": "FOOTPRINT",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "LbrDocumentTab",
+          "name": "DOCUMENT",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "LbrManagementTab",
+          "name": "MANAGE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ToolsTab",
+          "name": "UTILITIES",
+          "isActive": true,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "ElectronSymbolEnvironment",
+      "name": "Electronics Library - Symbol",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "LbrSymbolTab",
+          "name": "SYMBOL",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "LbrDocumentTab",
+          "name": "DOCUMENT",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "LbrManagementTab",
+          "name": "MANAGE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ToolsTab",
+          "name": "UTILITIES",
+          "isActive": true,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "ElectronPackageEnvironment",
+      "name": "Electronics 3D Package",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "LbrDocumentTab",
+          "name": "DOCUMENT",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "LbrManagementTab",
+          "name": "MANAGE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "LbrPackageTab",
+          "name": "PACKAGE 3D",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ToolsTab",
+          "name": "UTILITIES",
+          "isActive": true,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "PCBDesignEnvironement",
+      "name": "Electronics Design",
+      "isActive": false,
+      "tabs": []
+    },
+    {
+      "id": "SchEditorEnvironement",
+      "name": "Schematic Editor",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "EagleSchDesign",
+          "name": "DESIGN",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "EagleSchDocument",
+          "name": "DOCUMENT",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "EagleSchValidate",
+          "name": "VALIDATE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "EagleSchLibrary",
+          "name": "LIBRARY",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ToolsTab",
+          "name": "UTILITIES",
+          "isActive": true,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "BoardLayoutEnvironement",
+      "name": "PCB Editor",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "EaglePcbDesign",
+          "name": "DESIGN",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "EaglePcbDocument",
+          "name": "DOCUMENT",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "EaglePcbRulesDrcErc",
+          "name": "Rules",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "EaglePcbManufacturing",
+          "name": "Manufacturing",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "EaglePcbSimulate",
+          "name": "SIMULATION",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "EaglePcbLibrary",
+          "name": "LIBRARY",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ToolsTab",
+          "name": "UTILITIES",
+          "isActive": true,
+          "isVisible": false
+        }
+      ]
+    },
+    {
+      "id": "ParaMeshEnvironment",
+      "name": "ParaMesh",
+      "isActive": false,
+      "tabs": [
+        {
+          "id": "SolidTab",
+          "name": "SOLID",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "SurfaceTab",
+          "name": "SURFACE",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "ParaMeshOuterTab",
+          "name": "Mesh",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "FormTab",
+          "name": "FORM",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SheetMetalTab",
+          "name": "SHEET METAL",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "PlasticTab",
+          "name": "PLASTIC",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "AssemblyTab",
+          "name": "ASSEMBLY",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ManageTab",
+          "name": "MANAGE",
+          "isActive": false,
+          "isVisible": true
+        },
+        {
+          "id": "ToolsTab",
+          "name": "UTILITIES",
+          "isActive": true,
+          "isVisible": true
+        },
+        {
+          "id": "PCBTab",
+          "name": "PCB",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "Package3DTab",
+          "name": "Package",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "BasefeatureSolidTab",
+          "name": "BASE FEATURE SOLID",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "BasefeatureSurfaceTab",
+          "name": "BASE FEATURE SURFACE",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "SketchTab",
+          "name": "SKETCH",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "EditSnapshotTab",
+          "name": "POSITION",
+          "isActive": false,
+          "isVisible": false
+        },
+        {
+          "id": "ParaMeshBaseFeatureTab",
+          "name": "Direct Mesh Editing",
+          "isActive": false,
+          "isVisible": false
+        }
+      ]
+    }
+  ],
+  "_note": "Ground truth, read off the running Fusion via GET /tabs on 2026-07-28. Tab ids and display names are install-derived; never write one from memory. Note the display names are NOT consistently upper case -- ParaMeshOuterTab is \"Mesh\", not \"MESH\" -- which is why rules match on id.",
+  "_captured": "2026-07-28"
+}

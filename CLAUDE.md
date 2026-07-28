@@ -20,7 +20,7 @@ have to be run before every reload.
 See `docs/decisions/0001-architecture.md` for the reasoning. In short:
 
 - The add-in is the **server**: it serves state (`/events`), accepts commands (`/command`) and
-  serves Fusion's own icons (`/icon`).
+  serves Fusion's own icons (`/icon`) and dumps workspaces/tabs (`/tabs`).
 - The plugin owns **all 15 keys and repaints them**. It never uses `switchToProfile`.
 - Fusion API calls happen **only on the main thread**, marshalled via `registerCustomEvent` /
   `fireCustomEvent`. Never call the Fusion API from the HTTP thread.
@@ -48,12 +48,14 @@ Key files:
   step and an honest known-unverified list at the end.
 - `docs/decisions/` — architecture decision records.
 - `docs/research/` — SDK and Fusion API findings, each marked CONFIRMED or UNVERIFIED, plus
-  `command-dump.json` (every command definition in the owner's Fusion build).
+  `command-dump.json` (every command definition in the owner's Fusion build) and
+  `tab-dump.json` (every workspace and ribbon tab, ids and display names, captured 2026-07-28).
 
 ## Commands
 
 ```
-npm test              # 45 tests
+npm test              # 56 tests
+npm run audit         # every key on every page, checked structurally
 npm run simulator     # http://127.0.0.1:8731/_sim/
 npm run icons
 node scripts/install.js --dry-run
@@ -63,11 +65,16 @@ node scripts/resolve-commands.js
 ## Known constraints
 
 - **Windows only.**
-- **The Python side has never been executed.** No Python was available on the machine where it
-  was written; Fusion bundles its own. Treat every line of the add-in as unverified until it has
-  run inside Fusion. It has not even been syntax-checked.
-- **Command ids in `src/layouts/default.json` are guesses.** Use `scripts/resolve-commands.js`
-  against a running Fusion to fix them. Never invent an id and present it as known.
+- **The add-in runs, but this machine still has no Python.** It has served state, icons and
+  commands against real Fusion (Stages 0–4, 2026-07-27). *Newly written* Python is therefore
+  still unverified until it has been loaded inside Fusion — including `activate_tab()` and
+  `/tabs`, added 2026-07-28 and not yet run.
+- **Command ids in `src/layouts/default.json` are resolved, not guessed.** All 208 were checked
+  against `docs/research/command-dump.json` on 2026-07-28; `scripts/resolve-commands.js`
+  re-resolves them against a running Fusion. **Tab ids** are all confirmed: `GET /tabs` was run on 2026-07-28 and the full dump is in `docs/research/tab-dump.json`. Rules match on tab **id**, never display name — Fusion's casing is inconsistent (`ParaMeshOuterTab` is "Mesh", not "MESH"). Never invent an id and present it as known.
+- **Slots 13–15 are a fixed region** on every context page: Tabs, View, and More (or Page 1 on
+  a page 2). They must stay the *last three entries* of the ordered key list — that is the only
+  block that reads coherently in both orientations. `npm test` enforces it.
 - **Unverified hardware assumptions**, each with a named fix in the manual test plan: native
   grid orientation, landscape image rotation direction, secondary-screen controller name and
   image size, dial payload shape.

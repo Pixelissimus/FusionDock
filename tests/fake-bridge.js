@@ -31,6 +31,12 @@ const PLUGIN_DIR = path.join(
 const clients = new Set();
 const commandLog = [];
 
+// Real ids, taken from docs/research/tab-dump.json (captured off the running Fusion on
+// 2026-07-28). Anything not in here is refused, exactly as activate_tab refuses an id the
+// running build does not have.
+const KNOWN_TABS = ['SolidTab', 'SurfaceTab', 'ParaMeshOuterTab', 'SheetMetalTab',
+  'PlasticTab', 'ToolsTab', 'ParaMeshBaseFeatureTab', 'AssemblyTab', 'ManageTab'];
+
 let state = {
   type: 'state',
   connected: true,
@@ -244,6 +250,28 @@ const server = http.createServer(async (request, response) => {
     } else if (payload.action === 'text' && /CommitCmd|CancelCmd/.test(payload.text || '')) {
       state = { ...state, activeCommand: 'SelectCommand', dialogOpen: false };
       publish(state);
+    } else if (payload.action === 'tab') {
+      // The real add-in activates the workspace and ribbon tab and then force-publishes.
+      // Without this the whole tab path was untestable and unsimulatable: renaming a field
+      // the plugin sends would have left all tests green and only shown up on hardware.
+      //
+      // An unknown tab is refused the way activate_tab refuses it, so the failure path --
+      // and the key flash that depends on matchesResult -- is exercisable too.
+      if (KNOWN_TABS.includes(payload.tab)) {
+        state = { ...state, workspace: payload.workspace || state.workspace, tab: payload.tab };
+        publish(state);
+      } else {
+        publish({
+          type: 'commandResult',
+          ok: false,
+          action: 'tab',
+          tab: payload.tab,
+          tabName: payload.tabName,
+          workspace: payload.workspace,
+          message: 'unknown tab: ' + payload.tab
+        });
+        publish(state);
+      }
     }
     json(response, 202, { accepted: true });
     return;
@@ -255,6 +283,20 @@ const server = http.createServer(async (request, response) => {
     publish(state);
     console.log('  state ->', JSON.stringify(patch));
     json(response, 200, state);
+    return;
+  }
+
+  /*
+   * Publish an arbitrary frame to the plugin — commandResult in particular.
+   *
+   * Failure frames are the hardest thing to reach from the outside: they only appear when
+   * Fusion refuses something, so before this existed the alert path could not be tested at
+   * all, and matchesResult shipped with a bug that made every tab and view failure flash
+   * nothing.
+   */
+  if (route === '/_sim/publish' && request.method === 'POST') {
+    publish(await readBody(request));
+    json(response, 202, { accepted: true });
     return;
   }
 

@@ -165,39 +165,180 @@ unreachable; there is a test enforcing that.
 
 ---
 
-## 3. Remaining command coverage
+## 3. Command coverage — rewritten 2026-07-28, now needs proving
 
-Surface, Mesh, Sheet Metal and Plastic have not had the menu-fidelity pass the sketch pages
-got, where each menu was checked against Fusion and real submenus were split out.
+Every context now has a full page 1 and page 2, plus a fixed region (Tabs / View / More) at
+slots 13–15, and `home` has become the tab picker. All 208 command and icon ids in the layout were
+checked against `command-dump.json`; none is invented. What has **not** happened is anyone
+pressing them.
 
-| Page | Keys | Notes |
-| --- | --- | --- |
-| `surface` | 11 / 15 | never checked against Fusion's real Surface menus |
-| `mesh` | 8 / 15 | ditto |
-| `sheetmetal` | 9 / 15 | ditto |
-| Plastic | none | no page at all, and no rule for `PlasticTab` |
+Open against this:
 
-The sketch restructure is the template. Confirm every id with
-`node scripts/resolve-commands.js` — never invent one.
+- **One tab id is still inferred.** Stage 1 already recorded the live ids on 2026-07-27 —
+  `SolidTab`, `SurfaceTab`, `SheetMetalTab`, `PlasticTab`, `ParaMeshOuterTab`, `ToolsTab`,
+  `ManageTab`, `SketchTab` — so Plastic now matches on `PlasticTab` like the rest. Only
+  Utilities still matches on `tabName`: `ToolsTab` is almost certainly it, but that pairing was
+  never observed next to its display name, and a wrong id would put the Utilities page on the
+  Manage tab. `GET /tabs` settles it.
+- **Tab switching is written but unproven.** `activate_tab()` in `fsd_commands.py` and the
+  `tab` action are new. `Workspace.activate()` / `ToolbarTab.activate()` are documented but
+  have never been called from this add-in.
+- **Arrangement is still my judgement, not data.** Which command sits on page 1 versus page 2
+  was chosen from names and a read of the workflow. Fusion's own ribbon order — what it
+  promotes, what it buries — has never been dumped. An endpoint walking
+  workspaces → tabs → panels → controls would replace the guesswork; roughly 40 lines.
 
 ---
 
-## 4. The `home` page offers keys that cannot work
+## 2b. Ten Design tabs still fall through to the Solid page
 
-With Fusion open but no document, `home` shows Sketch, Component, New, Save and View. **Sketch
-and Component cannot do anything without a document** — pressing them fails and flashes the key
-red. Honest, but it is still offering something that cannot work.
+`GET /tabs` was finally run on 2026-07-28 and the whole thing is captured in
+`docs/research/tab-dump.json` — 38 workspaces, 219 tabs, ids **and** display names. Two
+immediate results: `ToolsTab` is confirmed as UTILITIES so no rule matches on a display name
+any more, and `ParaMeshOuterTab` reports its name as `"Mesh"`, not `"MESH"` — Fusion's own
+casing is inconsistent, which retrospectively justifies matching rules on id only.
 
-Either drop them and use the free slots for document-level commands (Open, Recent, New Design
-From File), or accept the red flash. A data change either way.
+What the dump also exposed is that ten tabs in the Design workspace have no rule and therefore
+show the **Solid** page, which is the same wrongness Jamie found with Plastic and Utilities,
+just not yet noticed:
+
+| Tab id | Shows as | Worth a page? |
+| --- | --- | --- |
+| ~~`ParaMeshBaseFeatureTab`~~ | Direct Mesh Editing | **DONE 2026-07-28** — `mesh.direct`, with Finish on slot 1. Two things unverified: whether entering the environment changes the workspace (the rule matches on tab alone so it does not care), and exactly which commands Fusion enables in there |
+| `AssemblyTab` | ASSEMBLY | Probably — Joint, As-Built Joint, Rigid Group are real work and have no keyboard shortcut |
+| `SketchTab` | SKETCH | No. The `inSketch` rule already covers being *in* a sketch; this tab is just the ribbon showing |
+| `ManageTab`, `PCBTab`, `Package3DTab`, `BasefeatureSolidTab`, `BasefeatureSurfaceTab`, `EditSnapshotTab` | — | Unlikely for functional parts. Left deliberately |
+
+Each is one rule plus one page, both data. The ids are no longer guesses.
+
+---
+
+## 3a. Full key audit — run 2026-07-28, `npm run audit`
+
+Prompted by Jamie asking for every button to be checked after a navigation bug that no id check
+would ever have caught. `scripts/audit-layout.js` walks all 33 pages, 344 keys and 12 rules and
+reports reachability, exits, slot counts, conflicting actions, unknown ids, missing artwork,
+label length, duplicate keys and shadowed rules. It fails on ERROR; WARN and NOTE are judgement.
+
+**Currently: no errors, no warnings.** Four things it found and that were fixed in the same
+pass:
+
+1. **Global doors were remembered as sub-pages.** The bug Jamie hit. Pages are now marked
+   `"global": true` and excluded from the per-context memory. The audit now errors if a page is
+   opened from more than two contexts without that flag, so the next one cannot slip through.
+2. **A failing key flashed nothing unless it was a `cmd`.** `commandResult` reported only `id`,
+   which is null for tab, view and text actions — so a tab key that failed was indistinguishable
+   from a key that was never wired up. That is precisely why the tab problem was invisible for
+   three rounds. The result now carries the action and its identifying fields, and the plugin
+   matches on all of them.
+3. **Thirteen folder pages had no visible exit** — only the dial (Home) left them. Each now ends
+   with a Back key and its own mirrored chevron icon.
+4. **Two tests asserted a 12-slot grid**, a leftover from before all 15 keys became context
+   keys. A 13-key folder looked overfull against a number that had not been true for a day.
+
+Deliberately still open, reported as NOTE:
+
+- **30 labels are reused across contexts** — "Extrude" is three different commands (solid,
+  surface, T-Spline), "Fillet" two. Correct: they are Fusion's own names, and the context makes
+  them unambiguous. Renaming them would be worse.
+- **11 keys draw as text only** because `/icon` 404s for their command. Unchanged, see item 5.
+
+---
+
+## 3c. Code review, 2026-07-28 — ten confirmed defects, all fixed
+
+An adversarial review of the whole two-day change set. Worth recording because eight of the ten
+were in code written *to fix* the previous problem, and three were in the safety net itself.
+
+| Defect | Fix |
+| --- | --- |
+| Pressing a tab on the picker left the device stranded there whenever the resolved page did not change — the tab Fusion is already on, or any tab while inside a sketch | `Navigator.closeDoors()`, called on tab press. Excluding globals from *memory* was only half the fix; nothing popped the door off the live stack, and `applyState` returns early on an unchanged root |
+| `activate_tab` reported `(True, "ok")` even when Fusion refused the switch | Check the Boolean both `activate()` calls return, exactly as `execute()` already did |
+| `GET /tabs` walked the Fusion API on the HTTP thread — the project's own hard rule, broken by the endpoint added to enforce good practice elsewhere | The walk moved to the main thread (startup + workspace change) into `_tabs_cache`; the handler serves plain data. `/commands` still has the same flaw and predates it |
+| The whole tab path had no test or simulator coverage | Fake bridge learned the `tab` action and a `/_sim/publish` route for failure frames; three integration tests, one of which fails without the `closeDoors` fix |
+| `install.js` skipped copying `__pycache__` but never pruned one already in the target — so the only machine with the problem kept it | Prune the destination as well |
+| The new global-page audit check read `contexts.size > 2` where its own comment said two or more | `>= 2`. The exactly-two case is the one most likely to occur |
+| The audit exempted global pages from the exit check, and `view` had no exit key while all thirteen folder pages gained one | Globals are no longer exempt; `view` gained a Back key. A `page` key no longer counts as an exit — it opens something deeper |
+| The shipped-layout test accepted any `nav` value, so `nav: "Back"` would pass while doing nothing | Validated against the set `activate()` handles |
+| The add-in logged tab and view failures as `None` | Log the action and whichever identifying field is present |
+| `matchesResult` compared text payloads with `===`, so a key carrying an *array* of text commands could never flash | Compare by value |
+
+Four further candidates were refuted on verification and deliberately not acted on, including a
+claimed race in `activate_tab`'s tab lookup that the tab dump disproves.
+
+---
+
+## 3b. Stop/Run did not reload the add-in — FIXED 2026-07-28, and it cost a session
+
+**Symptom:** every tab key did nothing, twice, across two Stop/Run cycles. `/tabs` kept
+returning 404 as if the new code had never been installed. It had been — `install.js` copied it
+correctly both times.
+
+**Cause:** Fusion's Stop/Run re-runs `FusionStreamDock.py`, but `fsd_bridge`, `fsd_commands` and
+`fsd_state` were already in `sys.modules`, so `import` was a no-op and every edit to those three
+files was silently ignored. The add-in kept serving yesterday's bridge. `FusionStreamDock.py`
+now `importlib.reload()`s all three at startup.
+
+**The trap in the fix:** the reload call lives in the very file whose staleness it cures, so the
+first time it has to be picked up by a **full Fusion restart**. After that, Stop/Run means what
+it looks like it means.
+
+**Worth remembering generally:** "I installed it and nothing changed" is not evidence the change
+was wrong. Check that the running process is actually running it — `/health` says the bridge is
+alive, `/tabs` says *which version* of it.
+
+---
+
+## 4. `home` offering keys that cannot work — DONE 2026-07-28
+
+`home` became the tab picker, and a separate `dashboard` page now covers the no-document case.
+Jamie, testing on the device: *"realistically, from the dashboard, you can't do any of the
+other functions"*. He is right — every modelling command, every tab key and Sketch, Component
+and Measure all need a design. The dashboard page is two keys, New and Open, and nothing else.
+It matches on the `hasDesign` field the state reader already published.
+
+---
+
+## 4b. Menu icons — Tabs, More and a recoloured Constrain, DONE 2026-07-28
+
+`scripts/draw-menu-icons.js` draws all three. It replaces the generate-and-key-out route for
+these particular icons, and the reason is the two failures already recorded above: an image
+generator will not produce real transparency, and it will not hit a stroke weight you ask for.
+Both stop being problems when the stroke width and the palette are literals in a file.
+
+**The constraint palette is now measured, not argued about.** Fusion's ten constraint icons
+were decoded and their pixels counted on 2026-07-28: **70.1% `#F07878`** coral red, **29.7%
+`#D8D8D8`** pale grey, and nothing else. The old `constrain-sketch` was 45% sky blue `#78C0FF`
+and 0% red — sky blue is what Fusion uses for sketch *handles* and solid *faces*, so the icon
+read as "sketch" or "solid" rather than "constraint". Jamie called this out twice before it was
+measured; measuring settled it in one pass.
+
+The **line-weight rule from 27 July still holds and is now enforced by construction**: draw at
+256px with a 13px stroke, which arrives as ~3px at the 62px key size, inside Fusion's own
+measured 2–4px. Do not dilate — it grows blobs, not strokes, and looked soft on the device.
+`scripts/check-icons.js` fails under 2px and now covers `more` as well.
+
+Judgement still open: whether `tabs` reads as a ribbon on the actual key. It was drawn three
+ways — three tabs (the outlined pair merged into one blob at 4x reduction), two tabs with a
+short rule (read as two panels), and finally two tabs on a full-width rule with no bottom edge,
+which is what shipped. Only the device settles it.
 
 ---
 
 ## 5. Smaller things
 
-- **Five commands have no Fusion icon** and fall back to a text label: `NewDocumentCommand`,
-  `Coil`, `AppearanceCommand`, `PhysicalMaterialCommand`, `FusionSheetMetalHemFlangeCommand`.
-  Fixed for free by the `icon` wiring in item 1 if art ever exists for them.
+- **Ten commands in the layout have no icon** and fall back to a text label. Measured on
+  2026-07-28 by asking the running bridge for all 208: `NewDocumentCommand`, `Coil`,
+  `AppearanceCommand`, `PhysicalMaterialCommand`, `FusionSheetMetalHemFlangeCommand`,
+  `FusionSheetMetalCornerCommand`, `FusionSheetMetalFilletCommand`,
+  `FusionSheetMetalChamferCommand`, `ParaMeshBridgeCommand`, `ParaMeshCloseCracksCommand`.
+  Every one reports `hasIcon: true` in the command dump but 404s from `/icon`, so this is
+  either a gap in `resolve_icon()` (which returns None when `resourceFolder` raises *or* when
+  the folder holds no non-`_dark` PNG) or genuinely empty folders. Worth ten minutes with one
+  of them and `os.listdir` before drawing any art.
+- **The fixed region costs three keys of fifteen on every page.** That is the same 20% that
+  got an earlier fixed row deleted. The difference is that these three are doors, not
+  commands. Revisit after real use — it is a data change to remove.
 - **`/debug` is bring-up tooling.** A 200-entry ring buffer of raw host events, plus the plugin
   posting to it on every `willAppear` and dial event. It answered the grid, controller-name and
   dial-payload questions. Worth a switch now those are closed, though it costs nothing

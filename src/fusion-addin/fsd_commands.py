@@ -170,6 +170,74 @@ def set_view(app, target):
     return False, "unknown view target: %s" % target
 
 
+def activate_tab(ui, workspace_id, tab_id, tab_name=None):
+    """Switch Fusion to a workspace and one of its ribbon tabs. Returns (ok, message).
+
+    Fusion has no command definition for "show the Sheet Metal tab" -- like the view
+    orientations, it is a property, not a command. Workspace.activate() and
+    ToolbarTab.activate() are the documented route and the only one available to us.
+
+    The tab is looked up by id and then, failing that, by display name. Tab ids are
+    install-derived and this project does not invent them; the name fallback means a key
+    still works if an id in the layout is stale, and /tabs reports the real ones.
+    """
+    if not workspace_id and not tab_id:
+        return False, "no workspace or tab"
+
+    workspace = None
+    if workspace_id:
+        try:
+            workspace = ui.workspaces.itemById(workspace_id)
+        except Exception as exc:
+            return False, "workspace lookup failed: %s" % exc
+        if not workspace:
+            return False, "unknown workspace: %s" % workspace_id
+        try:
+            # activate() returns a Boolean, exactly like commandDefinition.execute(), and
+            # refusing is a normal outcome rather than an error -- a workspace that cannot be
+            # entered from where Fusion currently is simply returns False and changes nothing.
+            # Discarding it reported every refusal as success, which is the silent dead key.
+            if not workspace.isActive and not workspace.activate():
+                return False, "workspace declined to activate: %s" % workspace_id
+        except Exception as exc:
+            return False, "workspace activate failed: %s" % exc
+    else:
+        workspace = _safe_active_workspace(ui)
+        if not workspace:
+            return False, "no active workspace"
+
+    if not tab_id and not tab_name:
+        return True, "ok"
+
+    tab = None
+    try:
+        if tab_id:
+            tab = workspace.toolbarTabs.itemById(tab_id)
+        if not tab and tab_name:
+            for candidate in workspace.toolbarTabs:
+                if (candidate.name or "").strip().lower() == tab_name.strip().lower():
+                    tab = candidate
+                    break
+    except Exception as exc:
+        return False, "tab lookup failed: %s" % exc
+
+    if not tab:
+        return False, "unknown tab: %s" % (tab_id or tab_name)
+    try:
+        if not tab.activate():
+            return False, "tab declined to activate: %s" % (tab_id or tab_name)
+    except Exception as exc:
+        return False, "tab activate failed: %s" % exc
+    return True, "ok"
+
+
+def _safe_active_workspace(ui):
+    try:
+        return ui.activeWorkspace
+    except Exception:
+        return None
+
+
 def execute_text_sequence(app, commands):
     """Run one or more text commands in order. Undocumented API -- may break on updates."""
     if isinstance(commands, str):

@@ -118,8 +118,9 @@
     } else if (payload.type === 'commandResult' && !payload.ok) {
       // The command refused to start -- usually the wrong selection or environment.
       // Flash the key that was pressed rather than silently doing nothing.
-      showAlertFor(payload.id);
-      log('command failed: ' + payload.id + ' -- ' + payload.message);
+      showAlertFor(payload);
+      log('command failed: ' + (payload.id || payload.tab || payload.view || payload.text)
+        + ' -- ' + payload.message);
     } else if (payload.type === 'shutdown') {
       lastState = { connected: false };
       applyState(lastState);
@@ -279,22 +280,55 @@
     });
   }
 
-  function showAlertFor(commandId) {
+  /*
+   * Flash whichever key produced this failure.
+   *
+   * Matched on every action type, not just cmd. A tab or view key reports no command id, so
+   * matching on cmd alone left those keys flashing nothing when they failed -- the symptom
+   * that made a broken tab key indistinguishable from a key that was never wired up.
+   */
+  function matchesResult(entry, result) {
+    if (!entry) {
+      return false;
+    }
+    if (result.action === 'tab') {
+      return Boolean((result.tab && entry.tab === result.tab)
+        || (result.tabName && entry.tabName === result.tabName));
+    }
+    if (result.action === 'view') { return Boolean(result.view) && entry.view === result.view; }
+    if (result.action === 'text') {
+      // Compared by value, not identity: a text key may carry an ARRAY of commands (the
+      // add-in's execute_text_sequence accepts one), and the echoed result is a separately
+      // parsed copy, so === is false for every key and nothing would ever flash.
+      return Boolean(result.text)
+        && JSON.stringify(entry.text) === JSON.stringify(result.text);
+    }
+    return Boolean(result.id) && entry.cmd === result.id;
+  }
+
+  function showAlertFor(result) {
     if (!navigator_) {
       return;
     }
     var orientation = settings.orientation;
     var slots = FsdGrid.contextCells(orientation);
     var visible = navigator_.visibleKeys(slots.length);
+    var flashed = false;
     visible.forEach(function (entry, index) {
-      if (!entry || entry.cmd !== commandId) {
+      if (!matchesResult(entry, result)) {
         return;
       }
       var context = cellToContext[FsdGrid.cellId(slots[index])];
       if (context && socket && socket.readyState === 1) {
         socket.send(JSON.stringify({ event: 'showAlert', context: context }));
+        flashed = true;
       }
     });
+    // A failure with nothing on screen to blame is worth saying out loud rather than
+    // swallowing: it means the key that sent it has already been repainted away.
+    if (!flashed) {
+      log('command failed with no visible key to flash: ' + JSON.stringify(result));
+    }
   }
 
   /* ---------------------------------------------------------------- input */
@@ -339,6 +373,26 @@
     // cannot go down the execute() path -- the add-in sets them on the viewport directly.
     if (entry.view) {
       sendCommand({ action: 'view', view: entry.view });
+      return;
+    }
+    // Ribbon tabs are not commands either -- there is no "show the Sheet Metal tab" to
+    // execute(). This is the key that lets the device DRIVE Fusion's context rather than
+    // only follow it; the page it lands on then comes back through the normal state rules.
+    if (entry.tab || entry.workspace) {
+      sendCommand({
+        action: 'tab',
+        workspace: entry.workspace,
+        tab: entry.tab,
+        tabName: entry.tabName
+      });
+      // Picking a destination closes the picker, whether or not the resolved page changes.
+      // Waiting for the state to come back does not work: choosing the tab Fusion is already
+      // on, or any tab at all while inside a sketch, leaves the root page identical, and
+      // applyState short-circuits on an unchanged root -- which stranded the device on the
+      // tab picker with the key appearing dead.
+      if (navigator_.closeDoors()) {
+        repaint();
+      }
       return;
     }
     if (entry.cmd) {

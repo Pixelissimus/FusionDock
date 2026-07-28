@@ -421,15 +421,18 @@ test('the dial pages through a page too large for the grid', async () => {
   await waitFor(() => FsdPlugin.getNavigator().currentPageId() === 'solid');
 
   const navigator = FsdPlugin.getNavigator();
-  navigator.open('solid.create');   // 12 keys, exactly one page
-  assert.strictEqual(navigator.pageCount(12), 1);
+  // Slot count comes from the grid, not a literal: all 15 keys are context keys, and hard
+  // coding 12 here made a 13-key folder look like it overflowed when it does not.
+  const slots = FsdGrid.contextCells(FsdPlugin.getSettings().orientation).length;
+  navigator.open('solid.create');   // 9 commands + Back, one page
+  assert.strictEqual(navigator.pageCount(slots), 1);
   toPlugin({ event: 'dialRotate', context: 'knob-0', payload: { ticks: 1 } });
   await wait(120);
   assert.strictEqual(navigator.offset, 0, 'a single-page list must not scroll');
 
   navigator.back();
-  navigator.open('sketch.constrain');   // 12 keys as well
-  assert.strictEqual(navigator.pageCount(12), 1);
+  navigator.open('sketch.constrain');   // 12 constraints + Back, still one page
+  assert.strictEqual(navigator.pageCount(slots), 1);
 
   // Leave the navigator at the context root. Without this the per-context memory quite
   // correctly restores this sub-page in later tests, which then look like failures.
@@ -545,4 +548,86 @@ test('a view key sends a view action, not an execute', async () => {
   assert.strictEqual(last.view, 'front');
   assert.strictEqual(last.id, undefined, 'must not send a command id');
   navigator.open(resumePage);
+});
+
+/*
+ * The tab action had no coverage at all until 2026-07-28: the fake bridge only understood
+ * 'execute' and 'text', so renaming any field the plugin sends would have left every test
+ * green and shown up only on hardware in front of Fusion — the slowest place this project
+ * has to debug anything.
+ */
+test('a tab key sends a tab action carrying all three identifying fields', async () => {
+  await setFusionState({ inSketch: false, workspace: 'FusionSolidEnvironment', tab: 'SolidTab' });
+  await waitFor(() => FsdPlugin.getNavigator().currentPageId() === 'solid');
+
+  const navigator = FsdPlugin.getNavigator();
+  navigator.open('home');
+  const slot = navigator.currentPage().keys.findIndex((key) => key.label === 'Sheet Metal');
+  assert.ok(slot >= 0, 'the tab picker should offer Sheet Metal');
+
+  const before = (await commandLog()).length;
+  toPlugin({ event: 'keyDown', context: contextForSlot('landscape', slot), payload: {} });
+  await waitFor(async () => (await commandLog()).length > before);
+
+  const sent = (await commandLog())[before];
+  assert.strictEqual(sent.action, 'tab', 'must use the tab action, not execute');
+  assert.strictEqual(sent.tab, 'SheetMetalTab');
+  assert.strictEqual(sent.workspace, 'FusionSolidEnvironment');
+  assert.strictEqual(sent.tabName, 'SHEET METAL', 'the name fallback must travel too');
+  assert.strictEqual(sent.id, undefined, 'must not send a command id');
+
+  await waitFor(() => FsdPlugin.getNavigator().currentPageId() === 'sheetmetal');
+});
+
+/*
+ * Reported on hardware: press Tabs in Solid, pick Solid, and the device stayed on the picker
+ * because the resolved root never changed and applyState short-circuits on that. Picking a
+ * destination must close the picker regardless.
+ */
+test('picking the tab Fusion is already on still closes the tab picker', async () => {
+  await setFusionState({ inSketch: false, workspace: 'FusionSolidEnvironment', tab: 'SolidTab' });
+  await waitFor(() => FsdPlugin.getNavigator().currentPageId() === 'solid');
+
+  const navigator = FsdPlugin.getNavigator();
+  navigator.open('home');
+  assert.strictEqual(navigator.currentPageId(), 'home');
+
+  const slot = navigator.currentPage().keys.findIndex((key) => key.label === 'Solid');
+  assert.ok(slot >= 0);
+  toPlugin({ event: 'keyDown', context: contextForSlot('landscape', slot), payload: {} });
+
+  await waitFor(() => FsdPlugin.getNavigator().currentPageId() === 'solid');
+  assert.strictEqual(navigator.currentPageId(), 'solid',
+    'the picker must close even though the resolved page did not change');
+});
+
+test('a tab Fusion refuses flashes the key that asked for it', async () => {
+  await setFusionState({ inSketch: false, workspace: 'FusionSolidEnvironment', tab: 'SolidTab' });
+  await waitFor(() => FsdPlugin.getNavigator().currentPageId() === 'solid');
+
+  // Drive the failure path directly: a commandResult for a tab carries no command id, which
+  // is exactly why matchesResult had to learn about actions other than 'execute'.
+  const navigator = FsdPlugin.getNavigator();
+  navigator.open('home');
+  const before = sentToHost.filter((m) => m.event === 'showAlert').length;
+
+  await fetch(BASE + '/_sim/publish', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'commandResult',
+      ok: false,
+      action: 'tab',
+      tab: 'SheetMetalTab',
+      tabName: 'SHEET METAL',
+      message: 'unknown tab: SheetMetalTab'
+    })
+  });
+
+  const flashed = await waitFor(
+    () => sentToHost.filter((m) => m.event === 'showAlert').length > before
+  );
+  assert.ok(flashed,
+    'the Sheet Metal key should flash, matched on its tab id rather than a command id');
+  navigator.home();
 });

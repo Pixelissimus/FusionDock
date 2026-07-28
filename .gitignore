@@ -45,3 +45,7 @@ node_modules/
 # Python bytecode (Fusion compiles the add-in on load)
 __pycache__/
 *.pyc
+
+# Python bytecode from syntax-checking the add-in in place
+__pycache__/
+*.pyc

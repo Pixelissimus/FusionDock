@@ -428,6 +428,41 @@ raise `POLL_INTERVAL_SECONDS` in `FusionStreamDock.py`.
 
 ---
 
+## Stage 6 — The rebuilt layout and tab switching (2026-07-28, not yet run)
+
+New work, none of it pressed on the device. Reinstall and restart both sides first:
+`node scripts/install.js --force`, restart the Stream Dock software, and **fully restart Fusion**.
+
+**Stop/Run is not enough this time.** Python caches imported modules, so Stop/Run re-ran the
+entry script while still using the old `fsd_bridge`, `fsd_commands` and `fsd_state` — which is
+why the tab keys did nothing through two Stop/Run cycles on 2026-07-28. The entry script now
+reloads all three, but that fix is itself in a cached file, so it needs one full restart to
+take. Confirm with `curl http://127.0.0.1:8731/tabs`: a 404 means the old code is still
+running and nothing below will pass.
+
+| # | Step | Expected |
+| --- | --- | --- |
+| 6.1 | ~~`curl http://127.0.0.1:8731/tabs`~~ | **DONE 2026-07-28.** 38 workspaces, 219 tabs, captured in `docs/research/tab-dump.json`. `ToolsTab` confirmed as UTILITIES; no rule matches on a display name any more. Ten Design tabs still fall through to Solid — backlog item 2b |
+| 6.2 | With no document open, look at the device | The tab picker: Solid, Surface, Mesh, Sheet Metal, Plastic, then Utilities, Form and the document keys |
+| 6.3 | Press **Sheet Metal** on that page | Fusion switches to the Sheet Metal tab **and** the device repaints to the sheetmetal page |
+| 6.4 | Press **Plastic** | Same. If nothing happens, 6.1 was skipped or the tab name is not `PLASTIC` |
+| 6.5 | Press **Form** | Fusion enters the T-Spline environment; device shows the form page (state confirmed as `workspace: TSplineEnvironment` on 2026-07-28) |
+| 6.6 | From any context, press the fixed **Tabs** key (slot 13) | The tab picker opens over the current page; the dial press (Home) returns |
+| 6.7 | Press **More** (slot 15), then **Page 1** | Page 2 of that context, then back. The stack must not grow — press both five times and check Back still behaves |
+| 6.8 | Turn the device to portrait | The fixed trio is the bottom row, not scattered |
+| 6.0 | `curl http://127.0.0.1:8731/tabs` before anything else | **200 with JSON.** A 404 means the add-in did not reload — stop here and restart Fusion fully |
+| 6.9a | Look at the Tabs, More and Constrain keys | Tabs reads as a ribbon (filled blue tab beside a grey outlined one on a rule); More is a double chevron; Constrain is coral-and-grey, matching Fusion own constraint icons, not sky blue |
+| 6.9b | With no document open, look at the device | Two keys only: New and Open |
+| 6.9 | Check the ten text-only keys | Hem, Corner, SM Fillet, SM Chamfer, Bridge, Close Cracks, New, Coil, Appearance, Material draw as a readable label with no icon |
+| 6.9c | On the mesh page press **Direct Edit**, then look at the device | It shows the Direct Mesh Editing page with **Finish** on the top-left key — not the Solid page. Press Finish; it should leave the environment |
+| 6.10 | Press three or four keys on each new page (Plastic and Utilities especially) | They run. Note any that decline to start — several need a selection first, which is correct behaviour, not a fault |
+
+6.3 and 6.4 are the ones that matter: `Workspace.activate()` and `ToolbarTab.activate()` are
+documented but have never been called from this add-in. If they fail, the tab keys become dead
+and `home` has to be reached some other way.
+
+---
+
 ## Known-unverified list
 
 Updated 2026-07-27. Kept honest: items move to RESOLVED only on evidence, and what the

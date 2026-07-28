@@ -4,9 +4,10 @@ Deliberately free of any Fusion imports so it can be exercised without Fusion ru
 see tests/test_bridge.py. The add-in supplies callbacks; this module owns only the socket.
 
 Endpoints:
-    GET  /health            -> {"ok": true, "version": ...}
+    GET  /health            -> {"ok": true, "protocol": N, "build": {...which files are live}}
     GET  /events            -> SSE stream of state objects
     GET  /commands          -> JSON list of every known Fusion command
+    GET  /tabs              -> JSON list of every workspace and its ribbon tabs
     GET  /icon?id=<cmdId>   -> PNG bytes for that command's icon
     POST /command           -> {"action": "execute", "id": "..."} queued for the main thread
 """
@@ -71,12 +72,25 @@ class _Handler(BaseHTTPRequestHandler):
         bridge = self.server.bridge
 
         if route == "/health":
-            self._send_json(200, {"ok": True, "protocol": PROTOCOL_VERSION})
+            body = {"ok": True, "protocol": PROTOCOL_VERSION}
+            try:
+                body["build"] = bridge.status()
+            except Exception as exc:
+                body["build"] = {"error": str(exc)}
+            self._send_json(200, body)
         elif route == "/events":
             self._stream_events()
         elif route == "/commands":
             try:
                 self._send_json(200, {"commands": bridge.list_commands()})
+            except Exception as exc:
+                self._send_json(500, {"error": str(exc)})
+        elif route == "/tabs":
+            # Same caveat as /commands: this reads the Fusion API from the HTTP thread rather
+            # than marshalling to the main one. Both are read-only bring-up diagnostics meant
+            # to be hit by hand, not by the device. Do not copy this into the key path.
+            try:
+                self._send_json(200, {"workspaces": bridge.list_tabs()})
             except Exception as exc:
                 self._send_json(500, {"error": str(exc)})
         elif route == "/icon":
@@ -192,10 +206,16 @@ class _Handler(BaseHTTPRequestHandler):
 class Bridge:
     """Owns the HTTP server thread and the set of connected SSE clients."""
 
-    def __init__(self, on_command, list_commands, get_icon, port=DEFAULT_PORT, logger=None):
+    def __init__(self, on_command, list_commands, get_icon, port=DEFAULT_PORT, logger=None,
+                 list_tabs=None, status=None):
         self.on_command = on_command
         self.list_commands = list_commands
         self.get_icon = get_icon
+        # Optional so the bridge stays constructible without Fusion, as tests do.
+        self.list_tabs = list_tabs or (lambda: [])
+        # Reports which add-in files are actually loaded -- see _module_status in the entry
+        # point. Optional so the bridge still constructs without Fusion.
+        self.status = status or (lambda: {})
         self.port = port
         self._logger = logger
         self._server = None

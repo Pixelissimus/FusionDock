@@ -9,9 +9,12 @@ manually-built folders.
 
 ## Status
 
-**Written but never run against real hardware.** All 45 automated tests pass, but they run
-against a simulated bridge. Fusion 360, the Stream Dock software and the N1 were all absent from
-the development machine.
+**Running on real hardware; the current layout is not yet proven on it.** Stages 0–4 of the
+manual test plan passed against real Fusion and a real N1 on 2026-07-27. All 56 automated tests
+pass, but they run against a simulated bridge.
+
+The layout was rebuilt on 2026-07-28 — every context gained a page 1 and page 2, `home` became
+the tab picker, and tab switching was added. None of that has been pressed on the device yet.
 
 Before trusting it, work through `docs/planning/manual-test-plan.md`. The known-unverified list
 at the end of that document is real, not boilerplate.
@@ -46,17 +49,23 @@ Design rationale is in `docs/decisions/0001-architecture.md`; the research behin
 
 ## Layout
 
-All 15 keys follow your context. The globals live on the physical controls instead:
+The keys follow your context, and three of them never move:
 
-- **15 context keys** — every one changes with what you are doing in Fusion.
-- **2 side buttons** — View and Back.
-- **Dial** — rotate for Undo and Redo (a jog wheel is the natural control for stepping through
-  history); press for Home, or to confirm an open Fusion dialog when one is up. If a page ever
-  holds more than 15 keys, rotation pages through it instead.
+- **12 context keys** — every one changes with what you are doing in Fusion.
+- **3 fixed keys** (slots 13–15) — **Tabs**, **View** and **More**. Not commands: doors. Tabs
+  reaches every workspace, View every camera and display option, More the second page of
+  wherever you are. They are the last three entries of every page list, because 13–15 is the
+  only block that reads coherently in both orientations.
+- **2 side buttons** — Undo and Redo.
+- **Dial** — rotate to cycle Iso / Top / Front; press for Home, or to confirm an open Fusion
+  dialog when one is up. Deliberately *not* Undo/Redo: an encoder is easy to nudge while
+  pressing, and a stray rotation that silently undoes work is worse than one that moves the
+  camera.
 
-An earlier design reserved three keys for Undo/Redo/View on every page. It was dropped after
-testing on real hardware: it spent 20% of the grid on three commands while the side buttons and
-dial sat unused. The bindings are data (`aux` in the layout), so they are a JSON edit.
+An earlier design reserved three keys for Undo/Redo/View and was dropped for spending 20% of
+the grid on three commands. The fixed region came back on 2026-07-28 for a different reason:
+these three are navigation, not commands, and without them the device could only follow Fusion's
+context, never change it. All of it is data (`aux` and the page lists), so it is a JSON edit.
 
 Both orientations are supported: **landscape** 5x3 (dial bottom right) and **portrait** 3x5
 (dial top right). Layouts are authored once as ordered lists; the grid mapping is derived.
@@ -84,8 +93,9 @@ Then:
 
 ## The command ids need fixing on first install
 
-The ids in `src/layouts/default.json` are **best guesses**, written without a Fusion install to
-check against. Each key also carries a `match` field holding the command's display name.
+All 208 ids in `src/layouts/default.json` are checked against the owner's Fusion build. On a
+**different** build they may not all exist, so treat them as needing a pass. Each key also
+carries a `match` field holding the command's display name, which is what the resolver uses.
 
 With Fusion running, and after visiting every tab so its lazily-created command definitions
 exist:
@@ -101,7 +111,7 @@ Expect a lot of failures on the first pass. This is the single largest known gap
 ## Development
 
 ```
-npm test              # 45 tests, no hardware needed
+npm test              # 56 tests, no hardware needed
 npm run simulator     # http://127.0.0.1:8731/_sim/
 npm run icons         # regenerate the plugin's own PNG assets
 ```
@@ -116,10 +126,20 @@ upright in both orientations there, the rotation constant is right.
 `src/layouts/default.json`:
 
 - `rules` — map Fusion's state to a page, first match wins, most specific first.
-- `pages` — each an ordered list of keys. A key has `cmd` (run a Fusion command), `page` (open a
-  sub-page), or `text` (run a raw text command).
-- `fixed` — exactly three keys, always visible.
+- `pages` — each an ordered list of keys. A key carries exactly one action:
 
+  | Field | Does |
+  | --- | --- |
+  | `cmd` | run a Fusion command |
+  | `page` | open a sub-page |
+  | `tab` / `workspace` | switch Fusion's workspace and ribbon tab — there is no command for this |
+  | `view` | set a viewport orientation or visual style — no command for this either |
+  | `text` | run a raw text command (undocumented, build-specific) |
+  | `nav` | `back` or `home` within the device's own page stack |
+
+- `aux` — the two side buttons and the dial.
+
+Every context page holds exactly 15 keys and ends with the fixed Tabs / View / More trio.
 Adding a command is a JSON edit, not a code change.
 
 ## Repository layout
@@ -138,8 +158,9 @@ Adding a command is a JSON edit, not a code change.
 ## Known limitations
 
 - Windows only.
-- Command ids are unverified (see above).
-- The Python side has never been executed — no Python was available on the development machine.
+- Command ids are resolved against the owner's install. Tab ids too, except the Utilities
+  pairing, which is inferred and matches on display name until `GET /tabs` confirms it.
+- Tab switching (`activate_tab`) and the `/tabs` endpoint are written but have never executed.
 - `activeSelectionChanged` does not fire while another command is running, so selection-driven
   behaviour is reliable only when Fusion is idle.
 - Text commands (`NuCommands.CommitCmd` and friends) are undocumented and change between Fusion

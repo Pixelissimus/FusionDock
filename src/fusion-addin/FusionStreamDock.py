@@ -14,6 +14,7 @@ fireCustomEvent from a daemon thread is not always reliable, so the periodic pol
 a backup drain for the command queue.
 """
 
+import importlib
 import json
 import os
 import queue
@@ -31,6 +32,16 @@ if _ADDIN_DIR not in sys.path:
 import fsd_bridge  # noqa: E402
 import fsd_commands  # noqa: E402
 import fsd_state  # noqa: E402
+
+# Stop/Run in Fusion's Add-Ins dialog re-runs this file, but Python has already cached
+# fsd_bridge, fsd_commands and fsd_state in sys.modules -- so `import` above is a no-op and
+# every edit to those three files is silently ignored until Fusion is fully restarted. That
+# cost a debugging session on 2026-07-28: /tabs kept returning 404 after a Stop/Run because
+# the old fsd_bridge was still loaded. Reloading them here makes Stop/Run mean what it looks
+# like it means.
+importlib.reload(fsd_bridge)
+importlib.reload(fsd_commands)
+importlib.reload(fsd_state)
 
 COMMAND_EVENT_ID = "FusionStreamDockCommand"
 POLL_EVENT_ID = "FusionStreamDockPoll"
@@ -50,6 +61,67 @@ _poll_event = None
 _stop_flag = None
 _poll_thread = None
 _last_state_key = None
+_loaded_mtimes = {}
+_tabs_cache = []
+
+
+def _refresh_tabs_cache():
+    """Snapshot every workspace and its tabs into plain dicts. MAIN THREAD ONLY.
+
+    /tabs must not walk the Fusion API itself. It is served over HTTP, and Fusion's API is not
+    thread-safe -- a read from the server thread while Fusion is mid-command can take the whole
+    application down, and no `except` catches a native crash. The rule is in CLAUDE.md and the
+    first version of this endpoint broke it, alongside /commands which has the same flaw and
+    predates it.
+
+    So the walk happens here, on the main thread, and the HTTP handler serves the resulting
+    plain data. Refreshed at startup and whenever the workspace changes, which is also when a
+    previously unvisited workspace first builds its tabs.
+    """
+    global _tabs_cache
+    try:
+        _tabs_cache = fsd_state.list_tabs(_ui)
+    except Exception:
+        _log("tab cache refresh failed: %s" % traceback.format_exc())
+
+
+def _module_status():
+    """Which version of each add-in file is actually loaded, and whether disk has moved on.
+
+    Fusion scans the AddIns folder only at startup, and Python caches imported modules, so an
+    install performed while Fusion is running changes nothing until Fusion is fully restarted.
+    That is invisible from outside -- /health answers happily from the old code. On 2026-07-28
+    it cost three rounds of "I installed it and nothing changed".
+
+    This makes it a single call: anything listed under "stale" is newer on disk than the copy
+    running right now.
+    """
+    status = {"loaded": {}, "stale": []}
+    for name, module in (("FusionStreamDock", sys.modules.get(__name__)),
+                         ("fsd_bridge", fsd_bridge),
+                         ("fsd_commands", fsd_commands),
+                         ("fsd_state", fsd_state)):
+        try:
+            path = module.__file__
+            on_disk = os.path.getmtime(path)
+        except Exception:
+            continue
+        loaded = _loaded_mtimes.get(name)
+        status["loaded"][name] = loaded
+        if loaded is not None and on_disk > loaded + 1:
+            status["stale"].append(name)
+    return status
+
+
+def _record_module_mtimes():
+    for name, module in (("FusionStreamDock", sys.modules.get(__name__)),
+                         ("fsd_bridge", fsd_bridge),
+                         ("fsd_commands", fsd_commands),
+                         ("fsd_state", fsd_state)):
+        try:
+            _loaded_mtimes[name] = os.path.getmtime(module.__file__)
+        except Exception:
+            pass
 
 
 def _log(message):
@@ -109,6 +181,14 @@ def _run_command(payload):
         ok, message = fsd_commands.execute_text_sequence(_app, payload.get("text"))
     elif action == "view":
         ok, message = fsd_commands.set_view(_app, payload.get("view"))
+    elif action == "tab":
+        ok, message = fsd_commands.activate_tab(
+            _ui, payload.get("workspace"), payload.get("tab"), payload.get("tabName")
+        )
+        if ok:
+            # A tab switch changes which page the device should show, and workspaceActivated
+            # does not fire for a tab change within the same workspace.
+            _refresh_state(force=True)
     elif action == "refresh":
         _refresh_state(force=True)
         return
@@ -116,14 +196,29 @@ def _run_command(payload):
         ok, message = False, "unknown action: %r" % action
 
     if not ok:
-        _log("%s -> %s" % (payload.get("id") or payload.get("text"), message))
+        _log("%s %s -> %s" % (
+            action,
+            payload.get("id") or payload.get("tab") or payload.get("tabName")
+            or payload.get("view") or payload.get("text") or payload.get("workspace"),
+            message,
+        ))
         # Tell the plugin so it can flash the key rather than leaving the user guessing
         # whether the press registered at all.
+        # Echo back enough to identify WHICH key failed. Reporting only "id" meant a failing
+        # tab or view key reported id: null, matched nothing in the plugin, and flashed
+        # nothing -- so on 2026-07-28 every tab key appeared to do simply nothing at all,
+        # which is the least debuggable outcome available.
         _bridge.publish(
             {
                 "type": "commandResult",
                 "ok": False,
+                "action": action,
                 "id": payload.get("id"),
+                "tab": payload.get("tab"),
+                "tabName": payload.get("tabName"),
+                "workspace": payload.get("workspace"),
+                "view": payload.get("view"),
+                "text": payload.get("text"),
                 "message": message,
             }
         )
@@ -164,6 +259,9 @@ class _WorkspaceHandler(adsk.core.WorkspaceEventHandler):
     def notify(self, args):
         try:
             _refresh_state()
+            # A workspace visited for the first time builds its tabs lazily, so the cache is
+            # refreshed here rather than only at startup.
+            _refresh_tabs_cache()
         except Exception:
             pass
 
@@ -205,6 +303,7 @@ def run(context):
         _app = adsk.core.Application.get()
         _ui = _app.userInterface
 
+        _record_module_mtimes()
         fsd_commands.load_overrides(_ADDIN_DIR)
         config = _load_config()
         port = int(config.get("port", fsd_bridge.DEFAULT_PORT))
@@ -231,6 +330,8 @@ def run(context):
         _bridge = fsd_bridge.Bridge(
             on_command=_on_command_from_plugin,
             list_commands=lambda: fsd_commands.list_commands(_ui),
+            list_tabs=lambda: _tabs_cache,
+            status=_module_status,
             get_icon=lambda command_id: fsd_commands.resolve_icon(_ui, command_id),
             port=port,
             logger=_log,
@@ -244,6 +345,7 @@ def run(context):
         _poll_thread.start()
 
         _refresh_state(force=True)
+        _refresh_tabs_cache()
         _log("add-in started on port %d" % port)
     except Exception:
         message = traceback.format_exc()
