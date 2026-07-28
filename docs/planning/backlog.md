@@ -275,9 +275,9 @@ claimed race in `activate_tab`'s tab lookup that the tab dump disproves.
 returning 404 as if the new code had never been installed. It had been — `install.js` copied it
 correctly both times.
 
-**Cause:** Fusion's Stop/Run re-runs `FusionStreamDock.py`, but `fsd_bridge`, `fsd_commands` and
+**Cause:** Fusion's Stop/Run re-runs `FusionDock.py`, but `fsd_bridge`, `fsd_commands` and
 `fsd_state` were already in `sys.modules`, so `import` was a no-op and every edit to those three
-files was silently ignored. The add-in kept serving yesterday's bridge. `FusionStreamDock.py`
+files was silently ignored. The add-in kept serving yesterday's bridge. `FusionDock.py`
 now `importlib.reload()`s all three at startup.
 
 **The trap in the fix:** the reload call lives in the very file whose staleness it cures, so the
@@ -355,4 +355,4 @@ which is what shipped. Only the device settles it.
 Rapid key presses, a 30-minute soak, unplug/replug, restarting either side independently, and
 the one that could still force an architectural change: **whether the add-in's 400 ms main-thread
 poll makes Fusion feel sluggish during real modelling.** If it does, raise
-`POLL_INTERVAL_SECONDS` in `FusionStreamDock.py`.
+`POLL_INTERVAL_SECONDS` in `FusionDock.py`.

@@ -1,4 +1,4 @@
-# Fusion 360 Stream Dock
+# FusionDock
 
 Turns a **VSD Stream Dock N1** into a context-aware control surface for **Autodesk Fusion 360**.
 The device follows what you are doing: enter a sketch and it shows sketch tools, press Rectangle
@@ -26,7 +26,7 @@ Two processes talking over `127.0.0.1`:
 ```
   Fusion 360                                     Stream Dock software
   +---------------------+                        +--------------------+
-  |  FusionStreamDock   |  HTTP + SSE  :8731     |  Fusion 360 plugin |
+  |  FusionDock         |  HTTP + SSE  :8731     |  Fusion 360 plugin |
   |  (Python add-in)    | <--------------------> |  (HTML/JS)         |
   |                     |                        |                    |
   |  reads context      |  state  -->            |  repaints 15 keys  |

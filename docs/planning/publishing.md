@@ -28,7 +28,7 @@ Audio, Video, Lighting, Gaming, Artistic. Browsing needs no account; **downloadi
 
 | Field | Now |
 | --- | --- |
-| `Name` | `Fusion 360 Stream Dock` — the official name |
+| `Name` | `FusionDock` — the official name |
 | `Author` | `Functional 3D UK` |
 | `Version` | `1.0.0` |
 | `URL` | `https://functional3duk.co.uk/` — **update this** to the Fusion page once it exists |

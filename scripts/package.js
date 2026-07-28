@@ -93,7 +93,7 @@ function main() {
   const required = [
     ['install-fusion-addin.bat', 'the Fusion half would have no installer'],
     ['layouts/default.json', 'the plugin would paint nothing at all'],
-    ['fusion-addin/FusionStreamDock.py', 'the add-in entry point would be missing'],
+    ['fusion-addin/FusionDock.py', 'the add-in entry point would be missing'],
     ['plugin/index.html', 'the plugin would have no entry point'],
     ['manifest.json', 'the software would not recognise it as a plugin']
   ];

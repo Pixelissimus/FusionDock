@@ -1,6 +1,6 @@
 {
     "SDKVersion": 1,
-    "Name": "Fusion 360 Stream Dock",
+    "Name": "FusionDock",
     "Version": "1.0.0",
     "Author": "Functional 3D UK",
     "Description": "Context-aware control surface for Autodesk Fusion 360. Keys follow the workspace, environment and sketch mode you are actually in.",

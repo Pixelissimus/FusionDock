@@ -2,7 +2,7 @@
     "autodeskProduct": "Fusion360",
     "type": "addin",
     "id": "b7d41e6a-2f83-4c19-9a6d-5e0c8f37b214",
-    "author": "fusion-360-stream-dock",
+    "author": "FusionDock",
     "description": {
         "": "Serves Fusion's current context to a VSD Stream Dock N1 and runs the commands it sends back."
     },

@@ -38,7 +38,7 @@ assumed needed Fusion were settled before installing.
 
 `fsd_bridge` is therefore confirmed working on the real interpreter, independently of Fusion.
 What remains unproven in the add-in is only the Fusion-facing code (`fsd_state`,
-`fsd_commands`) and the event wiring in `FusionStreamDock.py`.
+`fsd_commands`) and the event wiring in `FusionDock.py`.
 
 ### Stage 0 extras — ground truth found on disk
 
@@ -86,7 +86,7 @@ list. Recorded here with its provenance so it is not mistaken for a hardware res
 | --- | --- | --- |
 | 1.1 | `node scripts/install.js` | Both targets copied, no errors |
 | 1.2 | Start Fusion 360 | Fusion starts normally, no error dialog |
-| 1.3 | Utilities &rsaquo; Scripts and Add-Ins &rsaquo; Add-Ins tab | `FusionStreamDock` listed and **Running** |
+| 1.3 | Utilities &rsaquo; Scripts and Add-Ins &rsaquo; Add-Ins tab | `FusionDock` listed and **Running** |
 | 1.4 | Browser: `http://127.0.0.1:8731/health` | `{"ok": true, "protocol": 1}` |
 | 1.5 | Browser: `http://127.0.0.1:8731/events` | A stream of `data: {...}` lines appears and keeps ticking |
 | 1.6 | With 1.5 open, switch Fusion to the Surface tab | A new `data:` line appears within a second, with `"tab":"SurfaceTab"` |
@@ -424,7 +424,7 @@ dial confirms whatever is open either way — and Escape still cancels from the 
 | 5.7 | Work in Fusion for 15 minutes with the device connected | No noticeable slowdown vs. normal use |
 
 5.7 matters: the add-in polls every 400 ms on Fusion's main thread. If Fusion feels sluggish,
-raise `POLL_INTERVAL_SECONDS` in `FusionStreamDock.py`.
+raise `POLL_INTERVAL_SECONDS` in `FusionDock.py`.
 
 ---
 

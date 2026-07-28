@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-rem  Fusion 360 Stream Dock -- installs the Fusion half.
+rem  FusionDock -- installs the Fusion half.
 rem
 rem  This plugin is two pieces. The Stream Dock software installed the first one (the keys).
 rem  This script installs the second: a Fusion 360 add-in that reads what you are doing and
@@ -11,14 +11,14 @@ rem  Deliberately a .bat and nothing else. It has to run on a machine with no No
 rem  and no developer tools -- Fusion brings its own Python, and the add-in uses only that.
 rem  xcopy has shipped with Windows since forever and needs nothing installed.
 
-title Fusion 360 Stream Dock - add-in installer
+title FusionDock - add-in installer
 
 set "SOURCE=%~dp0fusion-addin"
-set "TARGET=%APPDATA%\Autodesk\Autodesk Fusion 360\API\AddIns\FusionStreamDock"
+set "TARGET=%APPDATA%\Autodesk\Autodesk Fusion 360\API\AddIns\FusionDock"
 
 echo.
-echo   Fusion 360 Stream Dock
-echo   ----------------------
+echo   FusionDock
+echo   ----------
 echo.
 
 if not exist "%SOURCE%" (
@@ -74,6 +74,6 @@ echo   Fusion only looks for add-ins when it starts, so it will not notice this 
 echo   fully quit and reopen it. Restarting the Stream Dock software is not enough.
 echo.
 echo   To check it worked: Fusion 360, Utilities, Scripts and Add-Ins, Add-Ins tab.
-echo   "FusionStreamDock" should be listed and Running.
+echo   "FusionDock" should be listed and Running.
 echo.
 pause

@@ -1,4 +1,4 @@
-# Fusion 360 Stream Dock — Claude Instructions
+# FusionDock — Claude Instructions
 
 ## Purpose
 
@@ -31,7 +31,7 @@ Key files:
 
 | File | Role |
 | --- | --- |
-| `src/fusion-addin/FusionStreamDock.py` | Entry point, event wiring, threading |
+| `src/fusion-addin/FusionDock.py` | Entry point, event wiring, threading |
 | `src/fusion-addin/fsd_bridge.py` | HTTP/SSE server. No Fusion imports — testable standalone |
 | `src/fusion-addin/fsd_state.py` | Reads Fusion context into a dict |
 | `src/fusion-addin/fsd_commands.py` | Command execution and icon resolution |

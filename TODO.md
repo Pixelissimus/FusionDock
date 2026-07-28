@@ -1,4 +1,4 @@
-# TODO — Fusion 360 Stream Dock
+# TODO — FusionDock
 
 Everything still outstanding, in one place. Tick a box, or tell me the number — "let's do 2.3
 and 2.4" — and I will work on those.
@@ -56,7 +56,7 @@ Full research and step-by-step is in `docs/planning/publishing.md`.
   their Discord `https://discord.gg/WvCkKRGavX` will answer 2.2, 2.3 and 2.4 in one message.
 - [ ] **2.5 — Build the Fusion page on functional3duk.co.uk and repoint the manifest.**
   `URL` currently points at the site root because the page does not exist yet. The page is
-  meant to cover Fusion Smart Bit, Fusion Smart Split and Fusion 360 Stream Dock together.
+  meant to cover Fusion Smart Bit, Fusion Smart Split and FusionDock together.
   One line in `manifest.json` once it is live.
 - [ ] **2.6 — Prepare the listing assets.**
   Description, and photographs of the real N1 running it. The store is full of renders; a real

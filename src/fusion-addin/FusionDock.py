@@ -43,8 +43,8 @@ importlib.reload(fsd_bridge)
 importlib.reload(fsd_commands)
 importlib.reload(fsd_state)
 
-COMMAND_EVENT_ID = "FusionStreamDockCommand"
-POLL_EVENT_ID = "FusionStreamDockPoll"
+COMMAND_EVENT_ID = "FusionDockCommand"
+POLL_EVENT_ID = "FusionDockPoll"
 
 # Fast enough that entering a sketch feels immediate on the device, slow enough to be
 # invisible against Fusion's own workload. Events cover most transitions; this catches the
@@ -102,7 +102,7 @@ def _module_status():
     running right now.
     """
     status = {"loaded": {}, "stale": []}
-    for name, module in (("FusionStreamDock", sys.modules.get(__name__)),
+    for name, module in (("FusionDock", sys.modules.get(__name__)),
                          ("fsd_bridge", fsd_bridge),
                          ("fsd_commands", fsd_commands),
                          ("fsd_state", fsd_state)):
@@ -119,7 +119,7 @@ def _module_status():
 
 
 def _record_module_mtimes():
-    for name, module in (("FusionStreamDock", sys.modules.get(__name__)),
+    for name, module in (("FusionDock", sys.modules.get(__name__)),
                          ("fsd_bridge", fsd_bridge),
                          ("fsd_commands", fsd_commands),
                          ("fsd_state", fsd_state)):
@@ -358,7 +358,7 @@ def run(context):
         message = traceback.format_exc()
         _log("startup failed: %s" % message)
         if _ui:
-            _ui.messageBox("Fusion Stream Dock failed to start:\n%s" % message)
+            _ui.messageBox("FusionDock failed to start:\n%s" % message)
 
 
 def stop(context):
@@ -387,4 +387,4 @@ def stop(context):
         _log("add-in stopped")
     except Exception:
         if _ui:
-            _ui.messageBox("Fusion Stream Dock failed to stop:\n%s" % traceback.format_exc())
+            _ui.messageBox("FusionDock failed to stop:\n%s" % traceback.format_exc())

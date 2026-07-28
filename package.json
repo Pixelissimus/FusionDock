@@ -1,5 +1,5 @@
 {
-  "name": "fusion-360-stream-dock",
+  "name": "fusiondock",
   "version": "0.1.0",
   "private": true,
   "description": "Context-aware VSD Stream Dock N1 control surface for Autodesk Fusion 360",

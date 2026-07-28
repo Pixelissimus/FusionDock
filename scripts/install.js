@@ -16,7 +16,7 @@ const path = require('path');
 const os = require('os');
 
 const ROOT = path.join(__dirname, '..');
-const ADDIN_NAME = 'FusionStreamDock';
+const ADDIN_NAME = 'FusionDock';
 const PLUGIN_FOLDER = 'com.fusiondock.streamdock.sdPlugin';
 
 const argv = process.argv.slice(2);

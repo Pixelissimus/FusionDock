@@ -1,5 +1,5 @@
 /*
- * Fusion 360 Stream Dock -- plugin entry point.
+ * FusionDock -- plugin entry point.
  *
  * Two connections:
  *   host    <-> WebSocket, the Stream Dock software's Elgato-derived protocol
@@ -40,7 +40,7 @@
     if (socket && socket.readyState === 1) {
       socket.send(JSON.stringify({
         event: 'logMessage',
-        payload: { message: '[FusionStreamDock] ' + message }
+        payload: { message: '[FusionDock] ' + message }
       }));
     }
   }
