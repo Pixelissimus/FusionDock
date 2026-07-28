@@ -1080,6 +1080,11 @@
       "title": "Sketch Modify",
       "keys": [
         {
+          "cmd": "BlendG1CurveSketchCmd",
+          "label": "Blend Curve",
+          "match": "Blend Curve"
+        },
+        {
           "cmd": "ChamferSketchEqualDistance",
           "label": "Chamfer",
           "match": "Equal Distance Chamfer"
@@ -1104,6 +1109,11 @@
     "sketch.constrain": {
       "title": "Constraints",
       "keys": [
+        {
+          "cmd": "SketchAutoConstraintAndDimCmd",
+          "label": "AutoConstrain",
+          "match": "AutoConstrain"
+        },
         {
           "cmd": "ConstraintHorizontalVertical",
           "label": "Horiz/Vert",
@@ -1294,9 +1304,9 @@
           "match": "Smooth"
         },
         {
-          "cmd": "TSplineFlattenSubDCmd",
-          "label": "Flatten",
-          "match": "Flatten"
+          "cmd": "TSplineAppendFaceCommand",
+          "label": "Face",
+          "match": "Face"
         },
         {
           "cmd": "TSplineSlideEdgeCommand",
@@ -1480,9 +1490,10 @@
           "peek": "ConstructionPlaneOffsetFromPlaneCommand"
         },
         {
-          "cmd": "MeasureCommand",
-          "label": "Measure",
-          "match": "Measure"
+          "page": "surface.modify",
+          "label": "Modify",
+          "icon": "modify-solid",
+          "folder": true
         },
         {
           "page": "home",
@@ -1635,9 +1646,9 @@
           "match": "Create Mesh Section Sketch"
         },
         {
-          "cmd": "ParaMeshTessellateCommand",
-          "label": "Tessellate",
-          "match": "Tessellate"
+          "cmd": "FusionMoveCommand",
+          "label": "Move",
+          "match": "Move/Copy"
         },
         {
           "page": "solid.construct",
@@ -1978,9 +1989,9 @@
           "peek": "ConstructionPlaneOffsetFromPlaneCommand"
         },
         {
-          "cmd": "MeasureCommand",
-          "label": "Measure",
-          "match": "Measure"
+          "cmd": "FusionRestCommand",
+          "label": "Rest",
+          "match": "Rest"
         },
         {
           "page": "home",
@@ -2240,6 +2251,67 @@
           "cmd": "ParaMeshReverseNormalsCommand",
           "label": "Reverse",
           "match": "Reverse Normal"
+        }
+      ]
+    },
+    "surface.modify": {
+      "title": "Surface Modify",
+      "_note": "Built from Fusion's own SURFACE > Modify panel. The surface pages previously carried Trim, Extend, Stitch and Reverse but none of the ordinary modifying commands, so a surface could be built and then not edited.",
+      "keys": [
+        {
+          "cmd": "FusionFilletEdgesCommand",
+          "label": "Fillet",
+          "match": "Fillet"
+        },
+        {
+          "cmd": "FusionChamferCommand",
+          "label": "Chamfer",
+          "match": "Chamfer"
+        },
+        {
+          "cmd": "FusionPressPullCommand",
+          "label": "Press Pull",
+          "match": "Press Pull"
+        },
+        {
+          "cmd": "FusionMoveCommand",
+          "label": "Move",
+          "match": "Move/Copy"
+        },
+        {
+          "cmd": "AlignCmd",
+          "label": "Align",
+          "match": "Align"
+        },
+        {
+          "cmd": "FusionDeleteCommand",
+          "label": "Delete",
+          "match": "Delete"
+        },
+        {
+          "cmd": "ModifyScale",
+          "label": "Scale",
+          "match": "Scale"
+        },
+        {
+          "cmd": "AppearanceCommand",
+          "label": "Appearance",
+          "match": "Appearance"
+        },
+        {
+          "cmd": "ChangeParameterCommand",
+          "label": "Parameters",
+          "match": "Change Parameters"
+        },
+        {
+          "cmd": "MeasureCommand",
+          "label": "Measure",
+          "match": "Measure"
+        },
+        {
+          "nav": "back",
+          "label": "Back",
+          "icon": "back"
         }
       ]
     }
