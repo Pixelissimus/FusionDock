@@ -1,7 +1,8 @@
-# Backlog
+# Backlog — history, not the to-do list
 
-Open work only. Anything fully resolved is deleted from here — the history of how it was
-resolved lives in `manual-test-plan.md`, which is the record; this file is the to-do list.
+**The to-do list is `TODO.md` in the project root.** Tickable, numbered, and the only place
+outstanding work is tracked. This file is now the record of how things were decided and
+resolved; `manual-test-plan.md` is the record of what was tested on hardware.
 
 Last pruned 2026-07-27 after Stages 0–4 passed on real hardware.
 

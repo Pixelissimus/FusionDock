@@ -42,8 +42,9 @@ Key files:
 
 ## Where things are written down
 
-- `docs/planning/backlog.md` — **the to-do list.** Outstanding work, and decisions waiting on
-  the owner. Read it before starting anything new; add to it rather than starting a second list.
+- `TODO.md` (project root) — **the to-do list.** Numbered, tickable, the only place outstanding
+  work is tracked. Read it before starting anything new. Jamie selects items by number.
+- `docs/planning/backlog.md` — history: how things were decided and resolved. Not a to-do list.
 - `docs/planning/manual-test-plan.md` — hardware bring-up, with results recorded against each
   step and an honest known-unverified list at the end.
 - `docs/decisions/` — architecture decision records.
