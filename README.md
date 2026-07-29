@@ -76,8 +76,12 @@ rotation is left to VSD Craft's own per-device rotation setting — the plugin d
 
 ## Install
 
-Requires Node 20+ for the tooling. The add-in itself runs on Fusion's bundled Python — no system
-Python needed.
+The packaged plugin bundle is in [`releases/`](releases/) — `FusionDock-1.0.0.zip`. To install it
+in the Stream Dock software, rename the file to `com.fusiondock.streamdock.sdPlugin` and
+double-click it. Rebuild it from source with `npm run package && node scripts/make-release.js`.
+
+To install from the source tree instead: requires Node 20+ for the tooling. The add-in itself runs
+on Fusion's bundled Python — no system Python needed.
 
 ```
 node scripts/install.js --dry-run     # check the target paths first
