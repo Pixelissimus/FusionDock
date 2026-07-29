@@ -1,3 +1,13 @@
+# Local working notes and tooling config — not part of the published project
+CLAUDE.md
+TODO.md
+PROJECT_STATUS.md
+PROJECT_MANIFEST.md
+.claude/
+AGENTS.md
+.cursor/
+.aider*
+
 # Environment and secrets
 .env
 .env.*

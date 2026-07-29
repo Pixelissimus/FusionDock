@@ -71,9 +71,9 @@ def _refresh_tabs_cache():
 
     /tabs must not walk the Fusion API itself. It is served over HTTP, and Fusion's API is not
     thread-safe -- a read from the server thread while Fusion is mid-command can take the whole
-    application down, and no `except` catches a native crash. The rule is in CLAUDE.md and the
-    first version of this endpoint broke it, alongside /commands which has the same flaw and
-    predates it.
+    application down, and no `except` catches a native crash. The rule is in the architecture
+    decision record and the first version of this endpoint broke it, alongside /commands which
+    has the same flaw and predates it.
 
     So the walk happens here, on the main thread, and the HTTP handler serves the resulting
     plain data. Refreshed at startup and whenever the workspace changes, which is also when a

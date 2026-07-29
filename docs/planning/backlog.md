@@ -1,6 +1,6 @@
 # Backlog — history, not the to-do list
 
-**The to-do list is `TODO.md` in the project root.** Tickable, numbered, and the only place
+**The to-do list is `TODO.md` in the project root** (local only, not tracked in git). Tickable, numbered, and the only place
 outstanding work is tracked. This file is now the record of how things were decided and
 resolved; `manual-test-plan.md` is the record of what was tested on hardware.
 
