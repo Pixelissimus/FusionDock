@@ -140,3 +140,49 @@ test('orientation is never inferred from the device size', () => {
   assert.strictEqual(grid.orientationFromDeviceSize, undefined,
     'device size cannot distinguish orientation on this hardware');
 });
+
+test('native 5x3 profile is detected from Keypad coordinates outside the N1 frame', () => {
+  grid.resetDeviceProfile();
+
+  assert.strictEqual(grid.currentDeviceProfile(), grid.DEVICE_PROFILE_N1);
+  assert.strictEqual(grid.observeCell({ column: 2, row: 2 }, 'Keypad'), false,
+    'ordinary N1-compatible coordinates must not switch profiles');
+  assert.strictEqual(grid.currentDeviceProfile(), grid.DEVICE_PROFILE_N1);
+
+  assert.strictEqual(grid.observeCell({ column: 4, row: 1 }, 'Keypad'), true,
+    'column 4 proves the host is exposing a native 5x3 keypad');
+  assert.strictEqual(grid.currentDeviceProfile(), grid.DEVICE_PROFILE_5X3);
+  assert.strictEqual(grid.NATIVE_COLUMNS, 5);
+  assert.strictEqual(grid.NATIVE_ROWS, 3);
+  assert.strictEqual(grid.AUX_ROW, null);
+
+  grid.resetDeviceProfile();
+});
+
+test('native 5x3 landscape mapping is direct and covers all 15 keys', () => {
+  grid.resetDeviceProfile();
+  grid.observeCell({ column: 3, row: 0 }, 'Keypad');
+
+  assert.deepStrictEqual(grid.nativeCell('landscape', 0, 0), { row: 0, column: 0 });
+  assert.deepStrictEqual(grid.nativeCell('landscape', 0, 4), { row: 0, column: 4 });
+  assert.deepStrictEqual(grid.nativeCell('landscape', 2, 0), { row: 2, column: 0 });
+  assert.deepStrictEqual(grid.nativeCell('landscape', 2, 4), { row: 2, column: 4 });
+
+  const cells = grid.contextCells('landscape');
+  assert.strictEqual(cells.length, 15);
+  assert.strictEqual(new Set(cells.map(grid.cellId)).size, 15);
+  assert.ok(cells.every(cell => cell.column >= 0 && cell.column < 5));
+  assert.ok(cells.every(cell => cell.row >= 0 && cell.row < 3));
+
+  grid.resetDeviceProfile();
+});
+
+test('native 5x3 profile does not treat 293SV3 side-area coordinates as N1 aux controls', () => {
+  grid.resetDeviceProfile();
+  grid.observeCell({ column: 4, row: 0 }, 'Keypad');
+
+  assert.ok(!grid.isAuxCell({ column: 5, row: 1 }));
+  assert.ok(!grid.isAuxCell({ column: 0, row: 3 }));
+
+  grid.resetDeviceProfile();
+});
