@@ -1,6 +1,9 @@
 # FusionDock
 
-Turns a **VSD Stream Dock N1** into a context-aware control surface for **Autodesk Fusion 360**.
+Turns compatible **VSD Craft Stream Dock** devices into a context-aware control surface for
+**Autodesk Fusion 360**. Hardware support currently includes the original **VSD Stream Dock N1**
+and the **Stream Dock 293SV3**.
+
 The device follows what you are doing: enter a sketch and it shows sketch tools, press Rectangle
 and it offers the rectangle variants, open a command dialog and it offers OK and Cancel.
 
@@ -9,15 +12,54 @@ manually-built folders.
 
 ## Status
 
-**Running on real hardware; the current layout is not yet proven on it.** Stages 0–4 of the
-manual test plan passed against real Fusion and a real N1 on 2026-07-27. All 56 automated tests
-pass, but they run against a simulated bridge.
+**Running on real hardware.** Stages 0–4 of the manual test plan passed against real Fusion and
+a real N1 on 2026-07-27. The 15-key main surface has also been tested with real Fusion on a
+Stream Dock 293SV3.
 
 The layout was rebuilt on 2026-07-28 — every context gained a page 1 and page 2, `home` became
-the tab picker, and tab switching was added. None of that has been pressed on the device yet.
+the tab picker, and tab switching was added. The automated tests run against a simulated bridge,
+so the manual test plan remains useful when validating new Fusion or Stream Dock versions.
 
 Before trusting it, work through `docs/planning/manual-test-plan.md`. The known-unverified list
 at the end of that document is real, not boilerplate.
+
+## Hardware compatibility
+
+### VSD Stream Dock N1
+
+The N1 is the original FusionDock target. It reports its 15 main keys as a native 3x5 keypad,
+which FusionDock rotates when the Landscape action is used.
+
+The N1 auxiliary controls remain supported as before:
+
+- two side buttons for Undo and Redo
+- dial rotation for cycling Iso / Top / Front
+- dial press for Home, or dialog confirmation when a Fusion dialog is open
+
+### Stream Dock 293SV3
+
+The Stream Dock 293SV3 has been tested on real hardware with FusionDock.
+
+Unlike the N1, the 293SV3 reports its 15 main keys directly as a native 5x3 landscape keypad:
+
+- columns `0..4`
+- rows `0..2`
+- controller `Keypad`
+
+FusionDock detects this native 5x3 layout automatically from the coordinates reported by the
+Stream Dock host. No manual `grid.js` replacement or device-specific configuration is required.
+
+All 15 main LCD keys have been verified with Fusion 360, including context-aware page changes
+and command execution.
+
+The 293SV3 also reports its long side area separately as controller `Information` at coordinate
+`(5,1)`. FusionDock does not currently map this area to the N1 side-button or dial functions,
+so 293SV3 support currently covers the 15-key main surface only.
+
+### Other devices
+
+Other Stream Dock models may work if they expose either the N1-style native 3x5 keypad or the
+native 5x3 keypad layout described above, but they have not been hardware-tested.
 
 ## How it works
 
@@ -56,6 +98,9 @@ The keys follow your context, and three of them never move:
   reaches every workspace, View every camera and display option, More the second page of
   wherever you are. They are the last three entries of every page list, because 13–15 is the
   only block that reads coherently in both orientations.
+
+On the N1, FusionDock additionally uses:
+
 - **2 side buttons** — Undo and Redo.
 - **Dial** — rotate to cycle Iso / Top / Front; press for Home, or to confirm an open Fusion
   dialog when one is up. Deliberately *not* Undo/Redo: an encoder is easy to nudge while
@@ -67,12 +112,13 @@ the grid on three commands. The fixed region came back on 2026-07-28 for a diffe
 these three are navigation, not commands, and without them the device could only follow Fusion's
 context, never change it. All of it is data (`aux` and the page lists), so it is a JSON edit.
 
-Both orientations are supported: **landscape** 5x3 (dial bottom right) and **portrait** 3x5
-(dial top right). Layouts are authored once as ordered lists; the grid mapping is derived.
+Both logical orientations are supported: **landscape** 5x3 and **portrait** 3x5. Layouts are
+authored once as ordered lists; the grid mapping is derived.
 
-Orientation is a **setting in the Property Inspector**, not something the plugin detects. The N1
-reports its native 3x5 frame however you are holding it, so there is nothing to detect. Icon
-rotation is left to VSD Craft's own per-device rotation setting — the plugin draws upright.
+Orientation is a **setting in the Property Inspector**, not something inferred from how the
+device is physically held. The N1 reports a native 3x5 frame and FusionDock maps Landscape onto
+it. Native 5x3 devices such as the 293SV3 report the Landscape grid directly. Icon rotation is
+left to VSD Craft's own per-device rotation setting — the plugin draws upright.
 
 ## Install
 
@@ -92,8 +138,9 @@ Then:
 
 1. Fully quit and restart the Stream Dock / VSD Craft software.
 2. Start Fusion 360. The add-in auto-starts; confirm under Utilities &rsaquo; Scripts and Add-Ins.
-3. Drag the **Fusion Key** action onto all 15 keys, both side buttons and the dial.
-4. Run `node scripts/resolve-commands.js` and fix the command ids (see below).
+3. Drag the **Fusion Key** action onto all 15 main keys.
+4. On an N1, also assign the FusionDock actions to the two side buttons and dial.
+5. Run `node scripts/resolve-commands.js` and fix the command ids (see below).
 
 ## The command ids need fixing on first install
 
@@ -115,7 +162,7 @@ Expect a lot of failures on the first pass. This is the single largest known gap
 ## Development
 
 ```
-npm test              # 56 tests, no hardware needed
+npm test
 npm run simulator     # http://127.0.0.1:8731/_sim/
 npm run icons         # regenerate the plugin's own PNG assets
 ```
@@ -124,6 +171,9 @@ The simulator serves a virtual N1 that loads the **real** plugin sources against
 so layouts, navigation and rendering can be exercised with neither Fusion nor the device
 present. It counter-rotates key images to mimic physically turning the N1 — if icons look
 upright in both orientations there, the rotation constant is right.
+
+The grid tests also cover native 5x3 keypad detection and mapping used by devices such as the
+293SV3.
 
 ## Layout structure
 
@@ -141,7 +191,7 @@ upright in both orientations there, the rotation constant is right.
   | `text` | run a raw text command (undocumented, build-specific) |
   | `nav` | `back` or `home` within the device's own page stack |
 
-- `aux` — the two side buttons and the dial.
+- `aux` — the two side buttons and the dial used by the N1.
 
 Every context page holds exactly 15 keys and ends with the fixed Tabs / View / More trio.
 Adding a command is a JSON edit, not a code change.
@@ -154,7 +204,7 @@ Adding a command is a JSON edit, not a code change.
 | `src/streamdock-plugin/` | The `.sdPlugin` bundle: grid, layout, render, main |
 | `src/layouts/` | Key layouts and context rules |
 | `scripts/` | Install, command resolver, icon generator |
-| `tests/` | Automated tests, fake bridge, N1 simulator |
+| `tests/` | Automated tests, fake bridge, N1 simulator and grid mapping tests |
 | `docs/research/` | SDK, Fusion API and prior-art findings, with sources |
 | `docs/decisions/` | Architecture decision records |
 | `docs/planning/` | `manual-test-plan.md` (hardware bring-up, with results) and `backlog.md` (**the to-do list** — what is still outstanding and what is waiting on a decision) |
@@ -162,6 +212,8 @@ Adding a command is a JSON edit, not a code change.
 ## Known limitations
 
 - Windows only.
+- On the Stream Dock 293SV3, the long `Information` side area is detected but is not currently
+  mapped to FusionDock controls; the 15-key main surface is supported.
 - Command ids are resolved against the owner's install. Tab ids too, except the Utilities
   pairing, which is inferred and matches on display name until `GET /tabs` confirms it.
 - Tab switching (`activate_tab`) and the `/tabs` endpoint are written but have never executed.
