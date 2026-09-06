@@ -134,7 +134,8 @@ function main() {
   console.log('  1. Restart the Stream Dock / VSD Craft software (fully quit it first).');
   console.log('  2. Start Fusion 360. The add-in auto-starts (runOnStartup is true).');
   console.log('     Check it under Utilities > Scripts and Add-Ins > Add-Ins.');
-  console.log('  3. Drag the "Fusion Key" action onto all 15 keys, both side buttons');
+  console.log('  3. Drag the "Fusion Key" action onto all 15 main keys.');
+  console.log('     On an N1, also assign the FusionDock actions to both side buttons');
   console.log('     and the dial.');
   console.log('  4. Verify the link: node scripts/resolve-commands.js');
 }
