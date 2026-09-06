@@ -512,6 +512,8 @@
       ? { column: payload.coordinates.column, row: payload.coordinates.row }
       : null;
 
+    FsdGrid.observeCell(cell, controller);
+    
     log('willAppear controller=' + controller
       + ' coords=' + (cell ? cell.column + ',' + cell.row : 'none'));
 
