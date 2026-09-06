@@ -1,67 +1,105 @@
 /*
- * Maps logical layout slots onto physical N1 keys, for either orientation.
+ * Maps logical layout slots onto physical Stream Dock keys.
  *
- * The host addresses keys by coordinates -- willAppear carries {column, row} in the
- * DEVICE'S NATIVE FRAME, and the device reports its own size in the registration info.
- * Everything here converts between "logical cell the user sees" and "native cell the host
- * talks about".
+ * The original target, the VSD Stream Dock N1, reports its 15-key surface in a
+ * native portrait frame: 3 columns x 5 rows. Landscape mode therefore needs a
+ * coordinate rotation.
  *
- * Native frame (from the Mirabox SDK's StreamDockN1 device class): the N1's background
- * screen is 480x854 -- taller than wide -- so native is taken to be PORTRAIT, 3 columns
- * by 5 rows.
+ * Some compatible Stream Dock models, including the MiraBox Stream Dock 293SV3,
+ * report the same 15-key landscape surface directly as 5 columns x 3 rows.
  *
- *   !! UNVERIFIED ON HARDWARE !!
- *   If keys land transposed on a real device, swap NATIVE_COLUMNS/NATIVE_ROWS. Nothing
- *   else needs touching -- every mapping below derives from those two numbers.
- *
- * Orientation geometry, fixed by where the dial sits:
- *   portrait  -> dial TOP RIGHT,    3 wide x 5 tall
- *   landscape -> dial BOTTOM RIGHT, 5 wide x 3 tall
- * A top-right corner moves to bottom-right under a 90 degree CLOCKWISE turn, so landscape
- * is portrait rotated clockwise:
- *
- *   landscape (row, column) -> native (row = LAST_NATIVE_ROW - column, column = row)
+ * The plugin keeps the N1 mapping as the default and switches to the native 5x3
+ * profile only after seeing a Keypad coordinate that cannot exist on the N1
+ * main keypad (column 3 or 4).
  */
 (function (root) {
   'use strict';
 
+  var DEVICE_PROFILE_N1 = 'n1-portrait-native';
+  var DEVICE_PROFILE_5X3 = 'landscape-5x3-native';
+  var deviceProfile = DEVICE_PROFILE_N1;
+
   var NATIVE_COLUMNS = 3;
   var NATIVE_ROWS = 5;
-  var KEY_COUNT = NATIVE_COLUMNS * NATIVE_ROWS;
+  var KEY_COUNT = 15;
   var LAST_NATIVE_ROW = NATIVE_ROWS - 1;
 
-  /*
-   * The N1 addresses its auxiliary controls as a SIXTH row of the same coordinate space --
-   * confirmed on hardware 2026-07-27 by reading willAppear:
-   *
-   *   row 5, column 0  ->  side button 1   controller "Keypad"
-   *   row 5, column 1  ->  side button 2   controller "Keypad"
-   *   row 5, column 2  ->  the dial        controller "Knob"
-   *
-   * Note the side buttons report as plain Keypad cells, NOT as "Information" or
-   * "SecondaryScreen". They must therefore be recognised by POSITION, not by controller
-   * name -- identifying them by name left them mapped to cell ids no page contains, so they
-   * painted blank and did nothing. This also explains the 18-cell coordinate space seen in
-   * VSD Craft's own N1 profiles.
-   */
-  var AUX_ROW = NATIVE_ROWS;
+  function applyDeviceProfile(profile) {
+    deviceProfile = profile;
 
-  function isAuxCell(cell) {
-    return !!cell && cell.row === AUX_ROW;
+    if (profile === DEVICE_PROFILE_5X3) {
+      NATIVE_COLUMNS = 5;
+      NATIVE_ROWS = 3;
+    } else {
+      NATIVE_COLUMNS = 3;
+      NATIVE_ROWS = 5;
+    }
+
+    LAST_NATIVE_ROW = NATIVE_ROWS - 1;
+
+    api.NATIVE_COLUMNS = NATIVE_COLUMNS;
+    api.NATIVE_ROWS = NATIVE_ROWS;
+    api.AUX_ROW = profile === DEVICE_PROFILE_N1 ? NATIVE_ROWS : null;
   }
 
   /*
-   * The plugin does NOT rotate key images. Verified on a real N1, 2026-07-27.
+   * Observe coordinates reported by willAppear.
    *
-   * The original assumption was that the host never rotates ("the N1 device class hardcodes
-   * key_rotate_angle = 0") so the plugin had to pre-rotate. That is wrong: VSD Craft has its
-   * own per-device icon rotation setting, which the owner already uses to run the N1 on its
-   * side. Pre-rotating here fought that setting and left every glyph 90 degrees out.
+   * N1 main keypad:
+   *   columns 0..2
+   *   rows    0..4
    *
-   * Rotation belongs to the host for a reason beyond this bug: it is the user's choice, it
-   * applies to every plugin consistently, and the SDK gives no way to read it back -- so a
-   * plugin that rotates on its own can only ever guess, and will be wrong for anyone whose
-   * preference differs. Draw upright; let VSD Craft turn it.
+   * Native landscape 5x3 keypad:
+   *   columns 0..4
+   *   rows    0..2
+   *
+   * Seeing column 3 or 4 on a Keypad cell therefore proves that the device is
+   * exposing a native 5x3 frame rather than the N1's native 3x5 frame.
+   */
+  function observeCell(cell, controller) {
+    if (!cell || controller !== 'Keypad') {
+      return false;
+    }
+
+    if (
+      deviceProfile === DEVICE_PROFILE_N1
+      && cell.column >= 3
+      && cell.row < 3
+    ) {
+      applyDeviceProfile(DEVICE_PROFILE_5X3);
+      return true;
+    }
+
+    return false;
+  }
+
+  function currentDeviceProfile() {
+    return deviceProfile;
+  }
+
+  function resetDeviceProfile() {
+    applyDeviceProfile(DEVICE_PROFILE_N1);
+  }
+
+  /*
+   * The N1 addresses its auxiliary controls as a sixth row:
+   *
+   *   row 5, column 0 -> side button 1
+   *   row 5, column 1 -> side button 2
+   *   row 5, column 2 -> dial
+   *
+   * The 293SV3 does not expose its side area using this N1-style coordinate
+   * scheme, so auxiliary-cell detection is enabled only for the N1 profile.
+   */
+  function isAuxCell(cell) {
+    return deviceProfile === DEVICE_PROFILE_N1
+      && !!cell
+      && cell.row === NATIVE_ROWS;
+  }
+
+  /*
+   * Key images are drawn upright. Any physical image rotation belongs to the
+   * Stream Dock / VSD Craft host rather than the plugin.
    */
   var LANDSCAPE_IMAGE_ROTATION_DEG = 0;
 
@@ -69,55 +107,95 @@
     return cell.column + ',' + cell.row;
   }
 
-  /* Logical grid as the user sees it. */
+  /*
+   * Logical layout dimensions as the user sees the device.
+   */
   function dimensions(orientation) {
     return orientation === 'landscape'
-      ? { columns: NATIVE_ROWS, rows: NATIVE_COLUMNS }
-      : { columns: NATIVE_COLUMNS, rows: NATIVE_ROWS };
-  }
-
-  /* Logical cell -> native cell the host understands. */
-  function nativeCell(orientation, row, column) {
-    if (orientation === 'landscape') {
-      return { row: LAST_NATIVE_ROW - column, column: row };
-    }
-    return { row: row, column: column };
+      ? { columns: 5, rows: 3 }
+      : { columns: 3, rows: 5 };
   }
 
   /*
-   * Native cells available for context commands, in reading order for the orientation.
-   *
-   * This is what lets a page be authored once as a flat ordered list: slot N lands on
-   * contextCells(orientation)[N] whichever way the device is turned.
-   *
-   * ALL 15 keys are context keys. There used to be a three-key "fixed region" holding Undo,
-   * Redo and View on every page, on the theory that keeping globals under the same finger
-   * avoids disorientation. In practice it spent 20% of the grid on three commands while the
-   * N1's two side buttons and dial sat unused -- so the globals moved there instead (see
-   * "aux" in the layout) and the grid is now entirely context.
+   * Convert a logical layout cell to the native coordinate reported by the host.
+   */
+  function nativeCell(orientation, row, column) {
+    /*
+     * Devices such as the 293SV3 already report landscape as a native 5x3 grid,
+     * so landscape requires no transformation.
+     *
+     * Keep portrait support by rotating the logical 3x5 layout into the native
+     * 5x3 frame.
+     */
+    if (deviceProfile === DEVICE_PROFILE_5X3) {
+      if (orientation === 'portrait') {
+        return {
+          row: column,
+          column: (NATIVE_COLUMNS - 1) - row
+        };
+      }
+
+      return {
+        row: row,
+        column: column
+      };
+    }
+
+    /*
+     * N1 native frame is portrait 3x5. Landscape is the native frame rotated
+     * clockwise.
+     */
+    if (orientation === 'landscape') {
+      return {
+        row: LAST_NATIVE_ROW - column,
+        column: row
+      };
+    }
+
+    return {
+      row: row,
+      column: column
+    };
+  }
+
+  /*
+   * Native cells available for context commands, returned in logical reading
+   * order for the selected orientation.
    */
   function contextCells(orientation) {
     var size = dimensions(orientation);
     var cells = [];
     var row;
     var column;
+
     for (row = 0; row < size.rows; row += 1) {
       for (column = 0; column < size.columns; column += 1) {
         cells.push(nativeCell(orientation, row, column));
       }
     }
+
     return cells;
   }
 
   function imageRotation(orientation) {
-    return orientation === 'landscape' ? LANDSCAPE_IMAGE_ROTATION_DEG : 0;
+    return orientation === 'landscape'
+      ? LANDSCAPE_IMAGE_ROTATION_DEG
+      : 0;
   }
 
   var api = {
     NATIVE_COLUMNS: NATIVE_COLUMNS,
     NATIVE_ROWS: NATIVE_ROWS,
     KEY_COUNT: KEY_COUNT,
-    AUX_ROW: AUX_ROW,
+    AUX_ROW: NATIVE_ROWS,
+
+    DEVICE_PROFILE_N1: DEVICE_PROFILE_N1,
+    DEVICE_PROFILE_5X3: DEVICE_PROFILE_5X3,
+
+    observeCell: observeCell,
+    currentDeviceProfile: currentDeviceProfile,
+    resetDeviceProfile: resetDeviceProfile,
+
     isAuxCell: isAuxCell,
     cellId: cellId,
     dimensions: dimensions,
@@ -131,4 +209,5 @@
   } else {
     root.FsdGrid = api;
   }
+
 }(typeof self !== 'undefined' ? self : this));
